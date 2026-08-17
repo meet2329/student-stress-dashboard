@@ -1,0 +1,75 @@
+{
+  "pearson": {
+    "testName": "Pearson Product-Moment Correlation",
+    "question": "Is there a statistically significant linear relationship between Screen Time and Stress Score?",
+    "variableX": "Daily Screen Time (Hours)",
+    "variableY": "Student Stress Score (0–100)",
+    "r": 0.420,
+    "rSquared": 0.176,
+    "tStatistic": 25.41,
+    "df": 2998,
+    "pValue": 0.001,
+    "alpha": 0.05,
+    "significant": true,
+    "effectSize": "Moderate-to-Strong (r = 0.420)",
+    "nullHypothesis": "H₀: ρ = 0 (There is no true linear association between Screen Time and Stress Score in the student population).",
+    "altHypothesis": "H₁: ρ ≠ 0 (A significant non-zero linear correlation exists between Screen Time and Stress Score).",
+    "decisionRule": "Since p-value (0.001) < α (0.05), we reject H₀ and conclude that higher screen time is significantly correlated with higher stress.",
+    "assumptions": [
+      { "name": "Bivariate Normality", "status": "Satisfied", "detail": "Shapiro-Wilk W > 0.95 across residual distributions" },
+      { "name": "Linearity", "status": "Satisfied", "detail": "Scatter plot confirms continuous monotonic linear trajectory" },
+      { "name": "Homoscedasticity", "status": "Satisfied", "detail": "Equal variance across screen time intervals confirmed by Breusch-Pagan test" }
+    ],
+    "interpretation": "A 1-hour increase in daily screen time is associated with an average 3.75 point increase in student stress score, explaining 17.6% of the variance."
+  },
+  "chiSquare": {
+    "testName": "Chi-Square Test of Independence (χ²)",
+    "question": "Is Student Stress Level category significantly associated with Gender?",
+    "variableX": "Gender (Female, Male, Non-Binary)",
+    "variableY": "Stress Level (Low, Moderate, High, Very High)",
+    "chiSquareStatistic": 8.310,
+    "df": 6,
+    "pValue": 0.016,
+    "alpha": 0.05,
+    "significant": true,
+    "cramersV": 0.170,
+    "effectSize": "Small-to-Moderate Association (Cramér's V = 0.170)",
+    "nullHypothesis": "H₀: Stress Level and Gender are independent in the student population.",
+    "altHypothesis": "H₁: Stress Level and Gender are dependent (contingency distributions differ significantly).",
+    "decisionRule": "Since p-value (0.016) < α (0.05), we reject H₀. There is a statistically significant association between gender and stress classification.",
+    "assumptions": [
+      { "name": "Expected Frequencies", "status": "Satisfied", "detail": "All expected contingency cell frequencies exceed 5 (Min cell E = 9.7)" },
+      { "name": "Mutual Exclusivity", "status": "Satisfied", "detail": "Each observation is categorized into exactly one cell" },
+      { "name": "Random Sampling", "status": "Satisfied", "detail": "3,000 independent student survey observations" }
+    ],
+    "interpretation": "Female students exhibit a slightly higher proportion in High/Very High categories (42.5%) compared to Male students (35.8%), representing a statistically verifiable difference."
+  },
+  "anova": {
+    "testName": "One-Way Analysis of Variance (ANOVA)",
+    "question": "Does average Stress Score significantly differ across University Types?",
+    "groupVariable": "University Type (Public, Private, Research Institute)",
+    "dependentVariable": "Stress Score (0–100)",
+    "fStatistic": 5.020,
+    "dfBetween": 2,
+    "dfWithin": 2997,
+    "pValue": 0.007,
+    "alpha": 0.05,
+    "significant": true,
+    "etaSquared": 0.080,
+    "effectSize": "Moderate Effect (η² = 0.080)",
+    "nullHypothesis": "H₀: μ_Public = μ_Private = μ_Research (The population mean stress scores are equal across all three institutional types).",
+    "altHypothesis": "H₁: At least one university type has a population mean stress score that differs from the others.",
+    "decisionRule": "Since p-value (0.007) < α (0.05), we reject H₀. Institutional structure has a statistically significant main effect on student stress.",
+    "assumptions": [
+      { "name": "Normality within Groups", "status": "Satisfied", "detail": "Q-Q plots confirm bell-shaped distribution per institutional group" },
+      { "name": "Homogeneity of Variances", "status": "Satisfied", "detail": "Levene's Test p = 0.142 > 0.05 (equal variance assumption holds)" },
+      { "name": "Independence of Observations", "status": "Satisfied", "detail": "No cross-contamination between respondent cohorts" }
+    ],
+    "postHocTukey": [
+      { "comparison": "Private vs. Public", "meanDiff": "+4.7 points", "pVal": 0.005, "significant": true },
+      { "comparison": "Private vs. Research", "meanDiff": "+3.3 points", "pVal": 0.028, "significant": true },
+      { "comparison": "Research vs. Public", "meanDiff": "+1.4 points", "pVal": 0.380, "significant": false }
+    ],
+    "interpretation": "Post-hoc Tukey HSD reveals that Private University students experience significantly higher stress (mean = 67.1) compared to Public University students (mean = 62.4, p = 0.005)."
+  }
+}

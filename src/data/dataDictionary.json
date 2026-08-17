@@ -1,0 +1,21 @@
+[
+  { "id": 1, "name": "Student_ID", "category": "Identifier", "type": "Categorical (Nominal)", "scale": "ID String", "range": "STU_0001 – STU_3000", "description": "Unique anonymized participant identifier." },
+  { "id": 2, "name": "Age", "category": "Demographic", "type": "Numerical (Discrete)", "scale": "Years", "range": "18 – 26", "description": "Chronological age in completed years." },
+  { "id": 3, "name": "Gender", "category": "Demographic", "type": "Categorical (Nominal)", "scale": "Categories", "range": "Female, Male, Non-Binary", "description": "Self-identified gender identity." },
+  { "id": 4, "name": "University_Type", "category": "Demographic", "type": "Categorical (Nominal)", "scale": "Categories", "range": "Public, Private, Research Institute", "description": "Institutional governance and classification." },
+  { "id": 5, "name": "Family_Income_Level", "category": "Socioeconomic", "type": "Categorical (Ordinal)", "scale": "Brackets", "range": "Low, Lower-Middle, Upper-Middle, High", "description": "Annual household income bracket." },
+  { "id": 6, "name": "Tuition_Funding", "category": "Socioeconomic", "type": "Categorical (Nominal)", "scale": "Categories", "range": "Self-Funded/Loans, Family Supported, Scholarship", "description": "Primary mechanism for tuition funding." },
+  { "id": 7, "name": "Study_Hours", "category": "Academic", "type": "Numerical (Continuous)", "scale": "Hours/Day", "range": "0.5 – 10.0", "description": "Daily independent self-study hours outside lecture." },
+  { "id": 8, "name": "Class_Attendance", "category": "Academic", "type": "Numerical (Continuous)", "scale": "Percentage (%)", "range": "40.0% – 100.0%", "description": "Recorded semester lecture and lab attendance rate." },
+  { "id": 9, "name": "Exam_Frequency", "category": "Academic", "type": "Numerical (Discrete)", "scale": "Count/Term", "range": "1 – 8", "description": "Number of graded examinations per semester." },
+  { "id": 10, "name": "Assignment_Load", "category": "Academic", "type": "Numerical (Discrete)", "scale": "Count/Week", "range": "1 – 9", "description": "Weekly submitted assignments and lab reports." },
+  { "id": 11, "name": "Academic_Pressure", "category": "Academic", "type": "Numerical (Continuous)", "scale": "Likert (1.0–5.0)", "range": "1.0 – 5.0", "description": "Subjective perceived academic demand rating." },
+  { "id": 12, "name": "Sleep_Hours", "category": "Lifestyle", "type": "Numerical (Continuous)", "scale": "Hours/Night", "range": "3.5 – 10.0", "description": "Average nocturnal sleep duration." },
+  { "id": 13, "name": "Screen_Time", "category": "Lifestyle", "type": "Numerical (Continuous)", "scale": "Hours/Day", "range": "1.5 – 12.0", "description": "Total daily digital device screen exposure." },
+  { "id": 14, "name": "Social_Media_Use", "category": "Lifestyle", "type": "Numerical (Continuous)", "scale": "Hours/Day", "range": "0.5 – 7.0", "description": "Dedicated social networking application usage." },
+  { "id": 15, "name": "Physical_Exercise", "category": "Lifestyle", "type": "Numerical (Discrete)", "scale": "Days/Week", "range": "0 – 7", "description": "Days engaging in ≥30 mins of moderate physical activity." },
+  { "id": 16, "name": "Anxiety_Level", "category": "Psychological", "type": "Numerical (Continuous)", "scale": "GAD-7 Scale (1.0–5.0)", "range": "1.0 – 5.0", "description": "Standardized generalized anxiety assessment score." },
+  { "id": 17, "name": "Family_Support", "category": "Social", "type": "Numerical (Continuous)", "scale": "Likert (1.0–5.0)", "range": "1.0 – 5.0", "description": "Perceived familial emotional and practical support." },
+  { "id": 18, "name": "Peer_Pressure", "category": "Social", "type": "Numerical (Continuous)", "scale": "Likert (1.0–5.0)", "range": "1.0 – 5.0", "description": "Perceived academic and social peer comparison pressure." },
+  { "id": 19, "name": "Stress_Score", "category": "Target Metric", "type": "Numerical (Continuous)", "scale": "Standardized (0–100)", "range": "21.0 – 98.4", "description": "Composite Student Stress Outcome Score (Target Variable)." }
+]

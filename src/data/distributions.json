@@ -1,0 +1,144 @@
+{
+  "demographics": {
+    "age": [
+      { "age": "18", "count": 280, "avgStress": 62.4 },
+      { "age": "19", "count": 640, "avgStress": 63.8 },
+      { "age": "20", "count": 820, "avgStress": 64.6 },
+      { "age": "21", "count": 690, "avgStress": 65.1 },
+      { "age": "22", "count": 340, "avgStress": 63.9 },
+      { "age": "23", "count": 130, "avgStress": 62.0 },
+      { "age": "24", "count": 60, "avgStress": 61.2 },
+      { "age": "25+", "count": 40, "avgStress": 60.5 }
+    ],
+    "gender": [
+      { "category": "Female", "count": 1520, "percentage": 50.7, "avgStress": 65.8, "color": "#EC4899" },
+      { "category": "Male", "count": 1380, "percentage": 46.0, "avgStress": 62.9, "color": "#3B82F6" },
+      { "category": "Non-Binary / Other", "count": 100, "percentage": 3.3, "avgStress": 64.5, "color": "#8B5CF6" }
+    ],
+    "universityType": [
+      { "type": "Public University", "count": 1450, "percentage": 48.3, "avgStress": 63.2 },
+      { "type": "Private University", "count": 1020, "percentage": 34.0, "avgStress": 66.8 },
+      { "type": "Research Institute", "count": 530, "percentage": 17.7, "avgStress": 64.1 }
+    ],
+    "familyIncome": [
+      { "income": "Low (<₹3L)", "count": 620, "percentage": 20.7, "avgStress": 68.4 },
+      { "income": "Lower-Middle (₹3L–₹6L)", "count": 950, "percentage": 31.7, "avgStress": 65.2 },
+      { "income": "Upper-Middle (₹6L–₹12L)", "count": 1010, "percentage": 33.7, "avgStress": 62.1 },
+      { "income": "High (>₹12L)", "count": 420, "percentage": 14.0, "avgStress": 59.8 }
+    ]
+  },
+  "academic": {
+    "studyHours": [
+      { "range": "< 2 hrs", "count": 310, "avgStress": 58.2 },
+      { "range": "2–4 hrs", "count": 980, "avgStress": 61.4 },
+      { "range": "4–6 hrs", "count": 1120, "avgStress": 65.8 },
+      { "range": "6–8 hrs", "count": 450, "avgStress": 71.2 },
+      { "range": "> 8 hrs", "count": 140, "avgStress": 76.5 }
+    ],
+    "attendance": [
+      { "range": "< 60%", "count": 220, "avgStress": 72.8 },
+      { "range": "60–75%", "count": 680, "avgStress": 67.4 },
+      { "range": "75–85%", "count": 1240, "avgStress": 63.6 },
+      { "range": "85–95%", "count": 670, "avgStress": 61.2 },
+      { "range": "> 95%", "count": 190, "avgStress": 58.5 }
+    ],
+    "examFrequency": [
+      { "frequency": "1–2 exams", "count": 420, "avgStress": 56.4 },
+      { "frequency": "3–4 exams", "count": 1380, "avgStress": 62.8 },
+      { "frequency": "5–6 exams", "count": 950, "avgStress": 68.5 },
+      { "frequency": "7+ exams", "count": 250, "avgStress": 76.2 }
+    ],
+    "assignmentLoad": [
+      { "load": "1–2 / week", "count": 510, "avgStress": 57.1 },
+      { "load": "3–4 / week", "count": 1420, "avgStress": 63.4 },
+      { "load": "5–6 / week", "count": 860, "avgStress": 68.9 },
+      { "load": "7+ / week", "count": 210, "avgStress": 75.8 }
+    ],
+    "tuition": [
+      { "category": "Self-Funded / Loans", "count": 1180, "avgStress": 68.2 },
+      { "category": "Family Supported", "count": 1350, "avgStress": 62.4 },
+      { "category": "Scholarship Funded", "count": 470, "avgStress": 58.9 }
+    ]
+  },
+  "lifestyle": {
+    "sleepHours": [
+      { "range": "< 5 hrs", "count": 460, "avgStress": 78.4 },
+      { "range": "5–6 hrs", "count": 850, "avgStress": 70.1 },
+      { "range": "6–7 hrs", "count": 980, "avgStress": 63.8 },
+      { "range": "7–8 hrs", "count": 540, "avgStress": 56.2 },
+      { "range": "> 8 hrs", "count": 170, "avgStress": 48.9 }
+    ],
+    "screenTime": [
+      { "range": "< 3 hrs", "count": 210, "avgStress": 49.2 },
+      { "range": "3–5 hrs", "count": 890, "avgStress": 58.6 },
+      { "range": "5–7 hrs", "count": 1180, "avgStress": 66.4 },
+      { "range": "7–9 hrs", "count": 530, "avgStress": 74.2 },
+      { "range": "> 9 hrs", "count": 190, "avgStress": 81.5 }
+    ],
+    "socialMedia": [
+      { "range": "< 1 hr", "count": 340, "avgStress": 54.1 },
+      { "range": "1–2 hrs", "count": 920, "avgStress": 60.5 },
+      { "range": "2–4 hrs", "count": 1210, "avgStress": 66.8 },
+      { "range": "> 4 hrs", "count": 530, "avgStress": 74.6 }
+    ],
+    "physicalExercise": [
+      { "frequency": "0 days (Sedentary)", "count": 780, "avgStress": 71.4 },
+      { "frequency": "1–2 days", "count": 1120, "avgStress": 65.2 },
+      { "frequency": "3–4 days", "count": 790, "avgStress": 59.8 },
+      { "frequency": "5+ days", "count": 310, "avgStress": 53.4 }
+    ]
+  },
+  "psychological": {
+    "anxiety": [
+      { "level": "Low (1.0–2.0)", "count": 480, "avgStress": 46.2 },
+      { "level": "Mild (2.0–3.0)", "count": 910, "avgStress": 57.8 },
+      { "level": "Moderate (3.0–4.0)", "count": 1050, "avgStress": 69.4 },
+      { "level": "Severe (4.0–5.0)", "count": 560, "avgStress": 81.2 }
+    ],
+    "familySupport": [
+      { "level": "Very Low (1.0–2.0)", "count": 390, "avgStress": 74.8 },
+      { "level": "Moderate (2.0–3.5)", "count": 1180, "avgStress": 66.2 },
+      { "level": "Strong (3.5–5.0)", "count": 1430, "avgStress": 58.4 }
+    ],
+    "peerPressure": [
+      { "level": "Low (1.0–2.0)", "count": 520, "avgStress": 54.6 },
+      { "level": "Moderate (2.0–3.5)", "count": 1390, "avgStress": 63.8 },
+      { "level": "High (3.5–5.0)", "count": 1090, "avgStress": 72.1 }
+    ]
+  },
+  "stressLevel": [
+    { "category": "Low (0–40)", "count": 480, "percentage": 16.0, "color": "#10B981" },
+    { "category": "Moderate (40–65)", "count": 1240, "percentage": 41.3, "color": "#3B82F6" },
+    { "category": "High (65–80)", "count": 890, "percentage": 29.7, "color": "#F59E0B" },
+    { "category": "Very High (80–100)", "count": 390, "percentage": 13.0, "color": "#EF4444" }
+  ],
+  "stressScoreHistogram": [
+    { "range": "20–35 (Low)", "count": 210 },
+    { "range": "35–50 (Low-Mod)", "count": 580 },
+    { "range": "50–65 (Moderate)", "count": 1120 },
+    { "range": "65–80 (High)", "count": 780 },
+    { "range": "80–95 (Very High)", "count": 310 }
+  ],
+  "topStressFactors": [
+    { "factor": "Anxiety Level", "r": 0.51, "impact": "Primary Risk Driver", "color": "#EF4444" },
+    { "factor": "Screen Time", "r": 0.42, "impact": "Strong Risk Multiplier", "color": "#F59E0B" },
+    { "factor": "Sleep Hours", "r": -0.38, "impact": "Strong Protective Buffer", "color": "#10B981" },
+    { "factor": "Exam Frequency", "r": 0.36, "impact": "Academic Friction", "color": "#F59E0B" },
+    { "factor": "Assignment Load", "r": 0.35, "impact": "Academic Friction", "color": "#F59E0B" },
+    { "factor": "Social Media", "r": 0.33, "impact": "Digital Stressor", "color": "#3B82F6" },
+    { "factor": "Peer Pressure", "r": 0.32, "impact": "Social Compounding", "color": "#3B82F6" },
+    { "factor": "Family Support", "r": -0.31, "impact": "Protective Buffer", "color": "#10B981" },
+    { "factor": "Study Hours", "r": 0.28, "impact": "Workload Load", "color": "#3B82F6" },
+    { "factor": "Class Attendance", "r": -0.24, "impact": "Protective Habit", "color": "#10B981" },
+    { "factor": "Physical Exercise", "r": -0.21, "impact": "Protective Buffer", "color": "#10B981" }
+  ],
+  "stressSummary": {
+    "mean": 64.2,
+    "median": 63.8,
+    "stdDev": 14.6,
+    "min": 21.0,
+    "max": 98.4,
+    "iqr": 20.5,
+    "skewness": 0.18
+  }
+}

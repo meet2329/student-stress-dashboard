@@ -1,0 +1,137 @@
+{
+  "keyFindings": [
+    {
+      "id": 1,
+      "tag": "Psychological Driver",
+      "severity": "High",
+      "title": "Anxiety is the Dominant Factor Associated with Stress",
+      "finding": "Anxiety level demonstrated the single highest linear correlation (r = 0.510, R² = 0.260) with student stress.",
+      "insight": "Elevated anxiety acts as a multiplier, lowering psychological buffering thresholds and amplifying the perceived threat of academic deadlines and evaluations.",
+      "recommendation": "Universities must institutionalize proactive cognitive-behavioral stress inoculation and early-detection counseling services before mid-semester pressure peaks."
+    },
+    {
+      "id": 2,
+      "tag": "Lifestyle Vulnerability",
+      "severity": "Critical",
+      "title": "Sleep Deprivation Severely Elevates Stress Severity",
+      "finding": "Students sleeping < 5 hours per night exhibited an average stress score of 75.4, compared to 52.8 for students achieving 8+ hours (r = -0.380).",
+      "insight": "Chronic sleep deficits directly diminish prefrontal cognitive inhibition, memory consolidation, and emotional stabilization during demanding academic cycles.",
+      "recommendation": "Establish strict residential quiet-hours guidelines and eliminate midnight assignment submission deadlines in favor of daylight scheduling."
+    },
+    {
+      "id": 3,
+      "tag": "Digital Environment",
+      "severity": "Moderate",
+      "title": "Excessive Screen Time Accelerates Cognitive Fatigue",
+      "finding": "Daily screen time above 7 hours correlates with a 15.6 point escalation in baseline stress (r = 0.420, p < 0.001).",
+      "insight": "Prolonged screen immersion displaces restorative physical activity and introduces constant notification arousal, hindering deep psychological recovery.",
+      "recommendation": "Incorporate digital wellness modules into student orientation and provide offline study lounges and screen-free collaborative zones."
+    },
+    {
+      "id": 4,
+      "tag": "Social Buffer",
+      "severity": "Positive",
+      "title": "Strong Family Support Serves as a Vital Protective Shield",
+      "finding": "High family support scores buffered against elevated stress by 13.4 points (r = -0.310), even when academic workloads were demanding.",
+      "insight": "Emotional validation and empathetic family communication provide external perspective, preventing acute academic stressors from causing internal collapse.",
+      "recommendation": "Encourage family-engagement communication channels and provide workshops on supportive academic parenting during critical semester milestones."
+    },
+    {
+      "id": 5,
+      "tag": "Institutional Setting",
+      "severity": "Moderate",
+      "title": "Institutional Culture Impacts Stress Dynamics",
+      "finding": "Private university students experienced significantly higher stress (mean = 67.1) than public university peers (mean = 62.4, ANOVA F = 5.02, p = 0.007).",
+      "insight": "Heightened financial investment, rigid grading curves, and intense peer competition generate persistent ambient performance anxiety.",
+      "recommendation": "Facilitate transparent grade curves, peer-mentorship networks, and career-readiness safety nets to alleviate hyper-competitive isolation."
+    }
+  ],
+  "recommendations": {
+    "academic": [
+      {
+        "title": "Staggered Major Assessment Deadlines",
+        "description": "Coordinate inter-departmental submission schedules to eliminate multiple major assignment clashes during identical calendar weeks.",
+        "priority": "High Priority",
+        "timeframe": "Semester Planning"
+      },
+      {
+        "title": "Daytime Submission Deadlines (5:00 PM)",
+        "description": "Shift standard 11:59 PM submission portals to 5:00 PM to discourage all-night cramming and protect healthy circadian sleep architecture.",
+        "priority": "Immediate",
+        "timeframe": "Next Term"
+      },
+      {
+        "title": "Transparent Grading Rubrics & Formative Feedback",
+        "description": "Provide explicit evaluation criteria and low-stakes formative checkpoints to reduce evaluative uncertainty and performance anxiety.",
+        "priority": "Medium Priority",
+        "timeframe": "Ongoing"
+      }
+    ],
+    "lifestyle": [
+      {
+        "title": "Campus Sleep Architecture Initiatives",
+        "description": "Enforce dormitory quiet hours from 11:00 PM and designate dedicated quiet relaxation pods in library facilities.",
+        "priority": "High Priority",
+        "timeframe": "Immediate"
+      },
+      {
+        "title": "Digital Wellness & Notification Detox",
+        "description": "Deliver interactive student workshops teaching app timers, notification hygiene, and bedtime blue-light mitigation.",
+        "priority": "Medium Priority",
+        "timeframe": "Orientation Week"
+      },
+      {
+        "title": "Integrated Movement & Micro-Exercise Breaks",
+        "description": "Provide accessible recreational fitness slots and encourage 5-minute active stretch intervals during long lecture periods.",
+        "priority": "Low-Medium",
+        "timeframe": "Campus-wide"
+      }
+    ],
+    "support": [
+      {
+        "title": "Proactive Counseling & Mental Health Accessibility",
+        "description": "Expand free, confidential counseling availability and institute drop-in mental health triage during midterm and finals weeks.",
+        "priority": "Critical Priority",
+        "timeframe": "Immediate"
+      },
+      {
+        "title": "Structured Peer Mentorship Communities",
+        "description": "Pair incoming undergraduates with experienced upper-year mentors to normalize academic struggles and share coping strategies.",
+        "priority": "High Priority",
+        "timeframe": "Annual"
+      },
+      {
+        "title": "Financial Aid & Emergency Workload Grants",
+        "description": "Streamline emergency grant access for self-funded students balancing dual full-time study and external employment obligations.",
+        "priority": "High Priority",
+        "timeframe": "Strategic"
+      }
+    ]
+  },
+  "highStressProfile": {
+    "title": "Calculated High-Stress Student Profile",
+    "description": "Empirical characteristic fingerprint derived from the top quartile (upper 25%) of stressed students.",
+    "metrics": [
+      { "label": "Stress Score", "highRisk": 79.4, "overallAvg": 64.2, "unit": "/100", "direction": "elevated" },
+      { "label": "Anxiety Level", "highRisk": 4.3, "overallAvg": 3.1, "unit": "/5.0", "direction": "elevated" },
+      { "label": "Sleep Hours", "highRisk": 4.8, "overallAvg": 6.2, "unit": "hrs", "direction": "deficient" },
+      { "label": "Screen Time", "highRisk": 8.4, "overallAvg": 5.8, "unit": "hrs", "direction": "elevated" },
+      { "label": "Study Hours", "highRisk": 6.2, "overallAvg": 4.5, "unit": "hrs", "direction": "elevated" },
+      { "label": "Weekly Assignments", "highRisk": 6.4, "overallAvg": 3.8, "unit": "/wk", "direction": "elevated" },
+      { "label": "Family Support", "highRisk": 2.1, "overallAvg": 3.3, "unit": "/5.0", "direction": "deficient" },
+      { "label": "Physical Exercise", "highRisk": 1.1, "overallAvg": 2.4, "unit": "days", "direction": "deficient" }
+    ],
+    "summary": "A typical high-stress student averages under 5 hours of sleep, spends >8 hours on screens, faces high assignment density, and lacks strong family or physical wellness support systems."
+  },
+  "finalDataStory": {
+    "headline": "What the Data Tells Us: The Interplay of Mind, Habit, and Environment",
+    "leadTakeaway": "Student stress is not driven by academic rigor alone, but rather by the compounding friction between high anxiety, acute sleep debt, elevated digital screen immersion, and isolated social support.",
+    "keyTakeaways": [
+      { "label": "Primary Driver", "text": "Anxiety level (r = 0.510) and Daily Screen Time (r = 0.420) form the strongest positive escalators of student stress." },
+      { "label": "Primary Buffer", "text": "Restorative sleep (r = -0.380) and robust family emotional support (r = -0.310) provide the most vital protective resilience." },
+      { "label": "Academic Friction", "text": "Assignment density (>5/week) and high exam frequency trigger non-linear stress compounding." },
+      { "label": "Statistical Reality", "text": "All major correlations, ANOVA differences (F = 5.02, p = 0.007), and Chi-square gender associations (χ² = 8.31, p = 0.016) passed rigorous significance testing (p < 0.05)." }
+    ],
+    "disclaimer": "These findings represent empirical statistical associations derived from survey analytics and should not be interpreted as formal clinical psychiatric diagnoses."
+  }
+}

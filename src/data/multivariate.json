@@ -1,0 +1,42 @@
+{
+  "screenSleepStressBubble": [
+    { "id": 1, "screenTime": 2.2, "stressScore": 48.5, "sleepHours": 8.5, "stressLevel": "Low", "anxiety": 1.4 },
+    { "id": 2, "screenTime": 3.0, "stressScore": 52.1, "sleepHours": 7.8, "stressLevel": "Low", "anxiety": 1.8 },
+    { "id": 3, "screenTime": 3.8, "stressScore": 56.4, "sleepHours": 7.5, "stressLevel": "Low", "anxiety": 2.1 },
+    { "id": 4, "screenTime": 4.5, "stressScore": 59.8, "sleepHours": 7.0, "stressLevel": "Moderate", "anxiety": 2.5 },
+    { "id": 5, "screenTime": 5.2, "stressScore": 63.2, "sleepHours": 6.8, "stressLevel": "Moderate", "anxiety": 2.9 },
+    { "id": 6, "screenTime": 5.8, "stressScore": 65.5, "sleepHours": 6.2, "stressLevel": "Moderate", "anxiety": 3.2 },
+    { "id": 7, "screenTime": 6.5, "stressScore": 68.9, "sleepHours": 5.8, "stressLevel": "High", "anxiety": 3.6 },
+    { "id": 8, "screenTime": 7.2, "stressScore": 72.4, "sleepHours": 5.4, "stressLevel": "High", "anxiety": 4.0 },
+    { "id": 9, "screenTime": 8.1, "stressScore": 76.8, "sleepHours": 4.9, "stressLevel": "High", "anxiety": 4.4 },
+    { "id": 10, "screenTime": 9.4, "stressScore": 82.5, "sleepHours": 4.2, "stressLevel": "Very High", "anxiety": 4.8 },
+    { "id": 11, "screenTime": 4.2, "stressScore": 54.0, "sleepHours": 8.0, "stressLevel": "Low", "anxiety": 2.0 },
+    { "id": 12, "screenTime": 6.8, "stressScore": 71.0, "sleepHours": 5.5, "stressLevel": "High", "anxiety": 3.8 },
+    { "id": 13, "screenTime": 8.5, "stressScore": 79.2, "sleepHours": 4.5, "stressLevel": "Very High", "anxiety": 4.6 },
+    { "id": 14, "screenTime": 3.2, "stressScore": 51.0, "sleepHours": 7.6, "stressLevel": "Low", "anxiety": 1.6 },
+    { "id": 15, "screenTime": 5.5, "stressScore": 64.0, "sleepHours": 6.5, "stressLevel": "Moderate", "anxiety": 3.0 }
+  ],
+  "anxietyFamilyStressInteraction": [
+    { "anxietyLevel": "Low Anxiety (1–2)", "lowFamilySupport": 58.4, "modFamilySupport": 51.2, "highFamilySupport": 44.6 },
+    { "anxietyLevel": "Mod-Low Anxiety (2–3)", "lowFamilySupport": 66.8, "modFamilySupport": 58.9, "highFamilySupport": 51.5 },
+    { "anxietyLevel": "Mod-High Anxiety (3–4)", "lowFamilySupport": 74.5, "modFamilySupport": 66.2, "highFamilySupport": 59.8 },
+    { "anxietyLevel": "Severe Anxiety (4–5)", "lowFamilySupport": 84.2, "modFamilySupport": 76.5, "highFamilySupport": 68.4 }
+  ],
+  "academicPressureTriad": [
+    { "studyCluster": "< 3 hrs / Light Load", "lowExams": 48.2, "modExams": 53.6, "highExams": 59.4 },
+    { "studyCluster": "3–5 hrs / Mod Load", "lowExams": 55.4, "modExams": 62.8, "highExams": 68.2 },
+    { "studyCluster": "5–7 hrs / Heavy Load", "lowExams": 63.1, "modExams": 69.5, "highExams": 75.8 },
+    { "studyCluster": "> 7 hrs / Extreme Load", "lowExams": 70.8, "modExams": 76.2, "highExams": 83.5 }
+  ],
+  "digitalHabitsMatrix": [
+    { "screenRange": "2–4 hrs", "lowSocial": 51.2, "modSocial": 56.4, "highSocial": 62.1 },
+    { "screenRange": "4–6 hrs", "lowSocial": 58.6, "modSocial": 64.2, "highSocial": 69.8 },
+    { "screenRange": "6–8 hrs", "lowSocial": 65.4, "modSocial": 71.0, "highSocial": 76.5 },
+    { "screenRange": "> 8 hrs", "lowSocial": 72.8, "modSocial": 78.4, "highSocial": 84.2 }
+  ],
+  "demographicInteraction": [
+    { "university": "Public Univ.", "female": 63.8, "male": 61.2, "other": 62.5 },
+    { "university": "Private Univ.", "female": 68.9, "male": 65.4, "other": 66.8 },
+    { "university": "Research Inst.", "female": 65.2, "male": 62.6, "other": 63.4 }
+  ]
+}

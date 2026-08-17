@@ -1,0 +1,20 @@
+{
+  "totalStudents": 3000,
+  "avgStressScore100": 64.2,
+  "avgStressScore5": 3.42,
+  "stressStatus": "Elevated",
+  "stressStatusColor": "amber",
+  "avgSleep": 6.2,
+  "avgSleepRecommended": 8.0,
+  "sleepDelta": "-1.8 hrs deficit vs ideal",
+  "avgScreenTime": 5.8,
+  "screenTimeDelta": "+40% vs 2-year baseline",
+  "avgAnxiety": 3.1,
+  "anxietyMax": 5.0,
+  "anxietyCategory": "Moderate-High",
+  "avgStudyHours": 4.5,
+  "avgStudyHoursDelta": "Daily average excluding class",
+  "highStressPercentage": 39.4,
+  "protectiveFactor": "Family Support & Sleep",
+  "primaryStressDriver": "Anxiety & Screen Time"
+}

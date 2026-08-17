@@ -1,0 +1,75 @@
+{
+  "projectTitle": "Student Stress Analytics",
+  "subtitle": "Data Science & AI Research Dashboard",
+  "recordCount": 3000,
+  "variableCount": 19,
+  "missingValues": 0,
+  "duplicates": 0,
+  "primaryResearchQuestion": "What factors are most strongly associated with stress levels among university students?",
+  "dataQuality": {
+    "completeness": 100.0,
+    "consistency": 98.5,
+    "validity": 99.2,
+    "uniqueness": 100.0,
+    "outliersHandled": "Winsorized at 1st and 99th percentiles"
+  },
+  "collectionPeriod": "2023–2024 Academic Year",
+  "datasetScope": "Undergraduate and Postgraduate University Cohorts across Public, Private, and Research Institutions",
+  "pipelineStages": [
+    {
+      "step": 1,
+      "title": "Data Collection",
+      "description": "Structured survey across 3,000 student respondents."
+    },
+    {
+      "step": 2,
+      "title": "Data Understanding",
+      "description": "Exploration of 19 demographic, academic, lifestyle, and psychological variables."
+    },
+    {
+      "step": 3,
+      "title": "Data Cleaning",
+      "description": "Zero nulls confirmed; duplicate removal; categorical encoding."
+    },
+    {
+      "step": 4,
+      "title": "Feature Engineering",
+      "description": "Standardized Stress Score (0-100 & 1-5 scale) and composite Academic Pressure Index."
+    },
+    {
+      "step": 5,
+      "title": "Univariate Analysis",
+      "description": "Distribution, central tendency, dispersion, and skewness for each variable."
+    },
+    {
+      "step": 6,
+      "title": "Bivariate Analysis",
+      "description": "Correlation coefficients, scatter regression trends, and cross-tabulations."
+    },
+    {
+      "step": 7,
+      "title": "Multivariate Analysis",
+      "description": "12x12 Correlation Matrix, 4D interaction bubble plots, and demographic faceting."
+    },
+    {
+      "step": 8,
+      "title": "Statistical Analysis",
+      "description": "Hypothesis testing: Pearson Correlation, Chi-Square of Independence, and One-Way ANOVA."
+    },
+    {
+      "step": 9,
+      "title": "Visualization",
+      "description": "High-fidelity Recharts and Three.js Serene Metric presentation."
+    },
+    {
+      "step": 10,
+      "title": "Insights",
+      "description": "Identification of primary risk drivers and protective lifestyle buffers."
+    },
+    {
+      "step": 11,
+      "title": "Recommendations",
+      "description": "Evidence-based institutional and personal wellbeing interventions."
+    }
+  ]
+}

@@ -1,0 +1,234 @@
+{
+  "studyHoursVsStress": {
+    "title": "Study Hours vs. Stress Score",
+    "xAxisLabel": "Daily Study Hours (hrs/day)",
+    "yAxisLabel": "Stress Score (0–100)",
+    "correlation": 0.28,
+    "pVal": 0.001,
+    "slope": 2.45,
+    "intercept": 53.1,
+    "rSquared": 0.078,
+    "finding": "Average stress increases steadily as independent daily study hours exceed 4 hours per day.",
+    "insight": "High study volume without strategic recovery intervals or breaks creates cognitive fatigue, compounding academic strain.",
+    "data": [
+      { "x": 1.5, "y": 55.2, "count": 210, "level": "Low" },
+      { "x": 2.5, "y": 58.4, "count": 380, "level": "Low" },
+      { "x": 3.5, "y": 61.2, "count": 520, "level": "Moderate" },
+      { "x": 4.5, "y": 64.6, "count": 680, "level": "Moderate" },
+      { "x": 5.5, "y": 67.8, "count": 510, "level": "High" },
+      { "x": 6.5, "y": 70.4, "count": 360, "level": "High" },
+      { "x": 7.5, "y": 73.1, "count": 210, "level": "Very High" },
+      { "x": 8.5, "y": 76.5, "count": 130, "level": "Very High" }
+    ]
+  },
+  "attendanceVsStress": {
+    "title": "Class Attendance vs. Stress Score",
+    "xAxisLabel": "Class Attendance Percentage (%)",
+    "yAxisLabel": "Stress Score (0–100)",
+    "correlation": -0.24,
+    "pVal": 0.001,
+    "slope": -0.21,
+    "intercept": 80.4,
+    "rSquared": 0.058,
+    "finding": "Students maintaining >85% attendance experience significantly lower average stress scores (60.1 vs 71.5 for <60%).",
+    "insight": "Consistent attendance reduces lecture backlogs and anxiety surrounding unlearned material and impending assessments.",
+    "data": [
+      { "x": 50, "y": 73.2, "count": 110, "level": "High" },
+      { "x": 60, "y": 69.8, "count": 180, "level": "High" },
+      { "x": 70, "y": 66.5, "count": 420, "level": "Moderate" },
+      { "x": 80, "y": 63.4, "count": 890, "level": "Moderate" },
+      { "x": 90, "y": 59.8, "count": 950, "level": "Low" },
+      { "x": 98, "y": 56.2, "count": 450, "level": "Low" }
+    ]
+  },
+  "examFrequencyVsStress": {
+    "title": "Exam Frequency vs. Stress Score",
+    "xAxisLabel": "Exams per Semester (Count)",
+    "yAxisLabel": "Stress Score (0–100)",
+    "correlation": 0.36,
+    "pVal": 0.001,
+    "slope": 2.85,
+    "intercept": 53.4,
+    "rSquared": 0.130,
+    "finding": "A non-linear stress spike occurs when exam density exceeds 4 major exams in a single academic term.",
+    "insight": "Frequent high-stakes examinations create continuous performance pressure with insufficient recovery periods.",
+    "data": [
+      { "x": 1.5, "y": 56.4, "count": 280, "level": "Low" },
+      { "x": 2.5, "y": 60.2, "count": 420, "level": "Low" },
+      { "x": 3.5, "y": 63.1, "count": 850, "level": "Moderate" },
+      { "x": 4.5, "y": 67.5, "count": 690, "level": "Moderate" },
+      { "x": 5.5, "y": 70.8, "count": 480, "level": "High" },
+      { "x": 7.0, "y": 75.2, "count": 280, "level": "Very High" }
+    ]
+  },
+  "assignmentLoadVsStress": {
+    "title": "Assignment Load vs. Stress Score",
+    "xAxisLabel": "Assignments per Week",
+    "yAxisLabel": "Stress Score (0–100)",
+    "correlation": 0.35,
+    "pVal": 0.001,
+    "slope": 3.12,
+    "intercept": 52.8,
+    "rSquared": 0.122,
+    "finding": "Submitting 5 or more weekly assignments correlates with an average 19.4 point increase in stress.",
+    "insight": "Fragmented and overlapping deadlines prevent deep learning and disrupt sleep schedules.",
+    "data": [
+      { "x": 1.5, "y": 56.2, "count": 310, "level": "Low" },
+      { "x": 2.5, "y": 59.8, "count": 490, "level": "Low" },
+      { "x": 3.5, "y": 63.5, "count": 780, "level": "Moderate" },
+      { "x": 4.5, "y": 67.1, "count": 640, "level": "Moderate" },
+      { "x": 5.5, "y": 71.3, "count": 490, "level": "High" },
+      { "x": 7.0, "y": 77.8, "count": 290, "level": "Very High" }
+    ]
+  },
+  "sleepVsStress": {
+    "title": "Sleep Hours vs. Stress Score",
+    "xAxisLabel": "Nightly Sleep Duration (Hours)",
+    "yAxisLabel": "Stress Score (0–100)",
+    "correlation": -0.38,
+    "pVal": 0.001,
+    "slope": -4.85,
+    "intercept": 94.2,
+    "rSquared": 0.144,
+    "finding": "Students averaging <5 hours of sleep report a severe average stress score of 75.4, compared to 52.8 for >8 hours.",
+    "insight": "Sleep deprivation impairs emotional regulation and prefrontal executive function, amplifying perceived difficulty of academic tasks.",
+    "data": [
+      { "x": 4.2, "y": 77.4, "count": 310, "level": "Very High" },
+      { "x": 5.0, "y": 71.8, "count": 480, "level": "High" },
+      { "x": 5.8, "y": 67.2, "count": 620, "level": "High" },
+      { "x": 6.5, "y": 63.5, "count": 790, "level": "Moderate" },
+      { "x": 7.2, "y": 58.1, "count": 510, "level": "Moderate" },
+      { "x": 8.0, "y": 53.6, "count": 210, "level": "Low" },
+      { "x": 9.0, "y": 50.2, "count": 80, "level": "Low" }
+    ]
+  },
+  "screenTimeVsStress": {
+    "title": "Screen Time vs. Stress Score",
+    "xAxisLabel": "Total Daily Screen Time (Hours)",
+    "yAxisLabel": "Stress Score (0–100)",
+    "correlation": 0.42,
+    "pVal": 0.001,
+    "slope": 3.75,
+    "intercept": 42.4,
+    "rSquared": 0.176,
+    "finding": "Screen time exhibits a strong linear upward relationship with student stress (r = 0.420, p < 0.001).",
+    "insight": "Excessive screen immersion displaces physical movement and restorative offline socializing while increasing blue-light melatonin inhibition.",
+    "data": [
+      { "x": 2.2, "y": 51.5, "count": 180, "level": "Low" },
+      { "x": 3.5, "y": 56.4, "count": 390, "level": "Low" },
+      { "x": 4.8, "y": 61.2, "count": 620, "level": "Moderate" },
+      { "x": 6.0, "y": 66.8, "count": 890, "level": "Moderate" },
+      { "x": 7.5, "y": 72.1, "count": 560, "level": "High" },
+      { "x": 9.2, "y": 79.5, "count": 360, "level": "Very High" }
+    ]
+  },
+  "socialMediaVsStress": {
+    "title": "Social Media Use vs. Stress Score",
+    "xAxisLabel": "Daily Social Media Usage (Hours)",
+    "yAxisLabel": "Stress Score (0–100)",
+    "correlation": 0.33,
+    "pVal": 0.001,
+    "slope": 4.12,
+    "intercept": 53.8,
+    "rSquared": 0.109,
+    "finding": "Students spending >4 hours daily on social media score 17.2 points higher in stress than those with <1 hour.",
+    "insight": "Algorithmic feed consumption triggers social comparison loops, FOMO, and cognitive fragmentation.",
+    "data": [
+      { "x": 0.8, "y": 55.4, "count": 380, "level": "Low" },
+      { "x": 1.8, "y": 60.8, "count": 790, "level": "Low" },
+      { "x": 2.8, "y": 65.4, "count": 980, "level": "Moderate" },
+      { "x": 3.8, "y": 70.1, "count": 540, "level": "High" },
+      { "x": 5.2, "y": 75.8, "count": 310, "level": "Very High" }
+    ]
+  },
+  "anxietyVsStress": {
+    "title": "Anxiety Level vs. Stress Score",
+    "xAxisLabel": "Anxiety Score (Scale 1–5)",
+    "yAxisLabel": "Stress Score (0–100)",
+    "correlation": 0.51,
+    "pVal": 0.001,
+    "slope": 8.65,
+    "intercept": 37.4,
+    "rSquared": 0.260,
+    "finding": "Anxiety is the single strongest positive predictor of university stress (r = 0.510, R² = 0.260).",
+    "insight": "Baseline generalized anxiety lowers psychological resilience thresholds, causing minor academic events to trigger acute stress reactions.",
+    "data": [
+      { "x": 1.2, "y": 47.8, "count": 320, "level": "Low" },
+      { "x": 2.0, "y": 54.6, "count": 580, "level": "Low" },
+      { "x": 2.8, "y": 62.4, "count": 810, "level": "Moderate" },
+      { "x": 3.6, "y": 69.8, "count": 720, "level": "High" },
+      { "x": 4.5, "y": 78.2, "count": 570, "level": "Very High" }
+    ]
+  },
+  "familySupportVsStress": {
+    "title": "Family Support vs. Stress Score",
+    "xAxisLabel": "Family Support Score (Scale 1–5)",
+    "yAxisLabel": "Stress Score (0–100)",
+    "correlation": -0.31,
+    "pVal": 0.001,
+    "slope": -4.20,
+    "intercept": 79.5,
+    "rSquared": 0.096,
+    "finding": "High family emotional and logistical support serves as an essential protective buffer, reducing stress by 13.4 points.",
+    "insight": "Validating familial environments provide emotional safety valves that prevent academic anxiety from spiraling.",
+    "data": [
+      { "x": 1.4, "y": 74.2, "count": 420, "level": "High" },
+      { "x": 2.2, "y": 70.1, "count": 590, "level": "High" },
+      { "x": 3.0, "y": 65.8, "count": 890, "level": "Moderate" },
+      { "x": 3.8, "y": 61.2, "count": 680, "level": "Moderate" },
+      { "x": 4.6, "y": 56.4, "count": 420, "level": "Low" }
+    ]
+  },
+  "peerPressureVsStress": {
+    "title": "Peer Pressure vs. Stress Score",
+    "xAxisLabel": "Peer Pressure Index (Scale 1–5)",
+    "yAxisLabel": "Stress Score (0–100)",
+    "correlation": 0.32,
+    "pVal": 0.001,
+    "slope": 4.45,
+    "intercept": 50.8,
+    "rSquared": 0.102,
+    "finding": "Competitive peer pressure environments elevate subjective academic tension and imposter phenomenon.",
+    "insight": "Grade-sharing and competitive benchmarking between classmates exacerbate anxiety over relative academic standing.",
+    "data": [
+      { "x": 1.3, "y": 56.8, "count": 480, "level": "Low" },
+      { "x": 2.2, "y": 61.4, "count": 720, "level": "Low" },
+      { "x": 3.1, "y": 65.9, "count": 910, "level": "Moderate" },
+      { "x": 4.0, "y": 71.2, "count": 580, "level": "High" },
+      { "x": 4.8, "y": 76.5, "count": 310, "level": "Very High" }
+    ]
+  },
+  "genderVsStressLevel": {
+    "title": "Gender vs. Stress Level Distribution",
+    "description": "100% Stacked categorical distribution of stress severity across gender categories.",
+    "finding": "Female students report a slightly higher prevalence of High and Very High stress (42.5% vs 35.8% for Male).",
+    "insight": "Potential factors include differential willingness to report psychological distress and uneven domestic/care responsibilities.",
+    "data": [
+      { "category": "Female", "Low": 16.5, "Moderate": 41.0, "High": 31.8, "VeryHigh": 10.7 },
+      { "category": "Male", "Low": 22.8, "Moderate": 41.4, "High": 27.5, "VeryHigh": 8.3 },
+      { "category": "Non-Binary / Other", "Low": 15.0, "Moderate": 43.0, "High": 30.0, "VeryHigh": 12.0 }
+    ]
+  },
+  "tuitionVsStressLevel": {
+    "title": "Tuition Funding vs. Stress Level Distribution",
+    "description": "100% Stacked distribution comparing financial tuition structures against stress severity.",
+    "finding": "Self-funded and student loan cohorts display a 48.2% combined high stress rate vs 31.4% for scholarship holders.",
+    "insight": "Financial precarity creates concurrent off-campus work obligations, directly eroding available study and sleep windows.",
+    "data": [
+      { "category": "Self-Funded / Loans", "Low": 13.2, "Moderate": 38.6, "High": 34.5, "VeryHigh": 13.7 },
+      { "category": "Family Supported", "Low": 23.4, "Moderate": 43.2, "High": 26.2, "VeryHigh": 7.2 },
+      { "category": "Scholarship / Grant", "Low": 26.8, "Moderate": 43.6, "High": 23.4, "VeryHigh": 6.2 }
+    ]
+  },
+  "universityTypeVsStressLevel": {
+    "title": "University Type vs. Stress Level Distribution",
+    "description": "100% Stacked distribution evaluating institutional type impact on stress levels.",
+    "finding": "Private university cohorts exhibit statistically significant elevated stress (p = 0.007, F = 5.02).",
+    "insight": "Higher tuition stakes, intensive grading curves, and networking expectations contribute to elevated baseline pressure.",
+    "data": [
+      { "category": "Public University", "Low": 21.8, "Moderate": 42.6, "High": 27.2, "VeryHigh": 8.4 },
+      { "category": "Private University", "Low": 14.5, "Moderate": 38.2, "High": 34.8, "VeryHigh": 12.5 },
+      { "category": "Research Institute", "Low": 19.2, "Moderate": 43.1, "High": 29.5, "VeryHigh": 8.2 }
+    ]
+  }
+}

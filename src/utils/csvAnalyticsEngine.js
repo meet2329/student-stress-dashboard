@@ -2,62 +2,136 @@
  * Comprehensive in-browser statistical computation engine for Student Stress datasets
  */
 
-export function parseCSV(csvText) {
-  const lines = csvText.trim().split(/\r?\n/)
-  if (lines.length < 2) throw new Error('CSV file must contain a header row and at least one data row.')
+// Stack-safe min for arbitrarily large arrays without exceeding call stack
+export function safeMin(arr) {
+  if (!arr || !arr.length) return 0
+  let min = Infinity
+  for (let i = 0; i < arr.length; i++) {
+    const val = Number(arr[i])
+    if (!isNaN(val) && val < min) min = val
+  }
+  return min === Infinity ? 0 : min
+}
 
-  const headers = lines[0].split(',').map(h => h.trim().replace(/^["']|["']$/g, ''))
+// Stack-safe max for arbitrarily large arrays without exceeding call stack
+export function safeMax(arr) {
+  if (!arr || !arr.length) return 0
+  let max = -Infinity
+  for (let i = 0; i < arr.length; i++) {
+    const val = Number(arr[i])
+    if (!isNaN(val) && val > max) max = val
+  }
+  return max === -Infinity ? 0 : max
+}
+
+export function parseCSV(csvText, maxRows = 250000) {
+  if (!csvText || typeof csvText !== 'string') {
+    throw new Error('CSV content is empty or invalid.')
+  }
+
+  // Find header line
+  let firstNewline = csvText.indexOf('\n')
+  if (firstNewline === -1) {
+    throw new Error('CSV file must contain a header row and at least one data row.')
+  }
+
+  const headerLine = csvText.slice(0, firstNewline).replace(/\r$/, '')
+  const headers = headerLine.split(',').map(h => h.trim().replace(/^["']|["']$/g, ''))
+  if (headers.length < 2) {
+    throw new Error('CSV must contain at least 2 columns.')
+  }
+
   const rows = []
+  let pos = firstNewline + 1
+  const len = csvText.length
 
-  for (let i = 1; i < lines.length; i++) {
-    const currentLine = lines[i].trim()
+  while (pos < len && rows.length < maxRows) {
+    let nextNewline = csvText.indexOf('\n', pos)
+    if (nextNewline === -1) nextNewline = len
+
+    const currentLine = csvText.slice(pos, nextNewline).replace(/\r$/, '').trim()
+    pos = nextNewline + 1
+
     if (!currentLine) continue
 
-    // Handle CSV split respecting quotes if present
-    const values = []
-    let inQuotes = false
-    let currentVal = ''
+    // Fast parse: if no quotes in line, simple split is 5x faster
+    if (!currentLine.includes('"')) {
+      const values = currentLine.split(',')
+      if (values.length === headers.length) {
+        const obj = {}
+        for (let i = 0; i < headers.length; i++) {
+          const val = values[i].trim()
+          const num = Number(val)
+          obj[headers[i]] = !isNaN(num) && val !== '' ? num : val
+        }
+        rows.push(obj)
+      }
+    } else {
+      // Respect quotes
+      const values = []
+      let inQuotes = false
+      let currentVal = ''
+      for (let i = 0; i < currentLine.length; i++) {
+        const ch = currentLine[i]
+        if (ch === '"') {
+          inQuotes = !inQuotes
+        } else if (ch === ',' && !inQuotes) {
+          values.push(currentVal.trim())
+          currentVal = ''
+        } else {
+          currentVal += ch
+        }
+      }
+      values.push(currentVal.trim())
 
-    for (let ch of currentLine) {
-      if (ch === '"') {
-        inQuotes = !inQuotes
-      } else if (ch === ',' && !inQuotes) {
-        values.push(currentVal.trim())
-        currentVal = ''
-      } else {
-        currentVal += ch
+      if (values.length === headers.length) {
+        const obj = {}
+        for (let i = 0; i < headers.length; i++) {
+          const val = values[i]
+          const num = Number(val)
+          obj[headers[i]] = !isNaN(num) && val !== '' ? num : val
+        }
+        rows.push(obj)
       }
     }
-    values.push(currentVal.trim())
+  }
 
-    if (values.length === headers.length) {
-      const obj = {}
-      headers.forEach((h, idx) => {
-        const val = values[idx]
-        const num = parseFloat(val)
-        obj[h] = !isNaN(num) && /^-?\d+(\.\d+)?$/.test(val) ? num : val
-      })
-      rows.push(obj)
-    }
+  if (rows.length === 0) {
+    throw new Error('No valid data rows found in CSV file.')
   }
 
   return { headers, rows }
 }
 
-// Compute mean of an array of numbers
+// Compute mean of an array of numbers (memory-efficient loop)
 export function mean(arr) {
   if (!arr || !arr.length) return 0
-  const valid = arr.filter(n => typeof n === 'number' && !isNaN(n))
-  if (!valid.length) return 0
-  return valid.reduce((a, b) => a + b, 0) / valid.length
+  let sum = 0
+  let count = 0
+  for (let i = 0; i < arr.length; i++) {
+    const val = Number(arr[i])
+    if (!isNaN(val)) {
+      sum += val
+      count++
+    }
+  }
+  return count > 0 ? sum / count : 0
 }
 
-// Compute standard deviation
+// Compute standard deviation (memory-efficient loop)
 export function stdDev(arr) {
   if (!arr || arr.length < 2) return 0
   const avg = mean(arr)
-  const squareDiffs = arr.map(v => Math.pow((Number(v) || avg) - avg, 2))
-  return Math.sqrt(mean(squareDiffs))
+  let sumSquareDiffs = 0
+  let count = 0
+  for (let i = 0; i < arr.length; i++) {
+    const val = Number(arr[i])
+    if (!isNaN(val)) {
+      sumSquareDiffs += Math.pow(val - avg, 2)
+      count++
+    }
+  }
+  return count > 1 ? Math.sqrt(sumSquareDiffs / count) : 0
 }
 
 // Compute Pearson correlation r
@@ -124,7 +198,18 @@ function findCol(headers, candidates) {
 
 // Helper to bin numerical continuous variables for clean scatter & bracket charts
 function createBinnedScatter(xVals, yVals) {
-  const pairs = xVals.map((x, i) => ({ x: Number(x), y: Number(yVals[i]) })).filter(p => !isNaN(p.x) && !isNaN(p.y))
+  const pairs = []
+  const maxPoints = Math.min(xVals.length, yVals.length)
+  const step = Math.max(1, Math.floor(maxPoints / 10000)) // downsample if > 10k points for charting
+
+  for (let i = 0; i < maxPoints; i += step) {
+    const px = Number(xVals[i])
+    const py = Number(yVals[i])
+    if (!isNaN(px) && !isNaN(py)) {
+      pairs.push({ x: px, y: py })
+    }
+  }
+
   if (pairs.length === 0) return []
 
   pairs.sort((a, b) => a.x - b.x)
@@ -175,7 +260,7 @@ export function computeDashboardFromRows(rows, headers) {
   // Extract numerical arrays with robust fallbacks
   let rawStress = rows.map(r => Number(r[stressCol]) || 50)
   // If stress score is 1-10 scale, normalize to 100
-  const maxStressRaw = Math.max(...rawStress)
+  const maxStressRaw = safeMax(rawStress)
   const stressScores = maxStressRaw <= 10.0 ? rawStress.map(s => (s / maxStressRaw) * 100) : rawStress
 
   const sleepVals = sleepCol ? rows.map(r => Number(r[sleepCol]) || 6.2) : Array(totalN).fill(6.2)

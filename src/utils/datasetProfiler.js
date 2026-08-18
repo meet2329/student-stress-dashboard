@@ -4,7 +4,7 @@
  * Reuses statistical functions from the existing csvAnalyticsEngine.
  */
 
-import { mean, stdDev } from './csvAnalyticsEngine'
+import { mean, stdDev, safeMin, safeMax } from './csvAnalyticsEngine'
 
 // ─── Data Type Detection ───────────────────────────────────────────────────────
 
@@ -93,14 +93,29 @@ function profileColumn(colName, values, totalRows) {
   profile.isIdLike = isIdLikeColumn(colName, cardinality, totalRows)
 
   if (inferredType === 'numerical') {
-    const nums = nonEmpty.map(Number).filter(n => !isNaN(n))
+    const nums = []
+    for (let i = 0; i < nonEmpty.length; i++) {
+      const n = Number(nonEmpty[i])
+      if (!isNaN(n)) nums.push(n)
+    }
+
     if (nums.length > 0) {
-      profile.min = parseFloat(Math.min(...nums).toFixed(2))
-      profile.max = parseFloat(Math.max(...nums).toFixed(2))
+      profile.min = parseFloat(safeMin(nums).toFixed(2))
+      profile.max = parseFloat(safeMax(nums).toFixed(2))
       profile.mean = parseFloat(mean(nums).toFixed(2))
       profile.std = parseFloat(stdDev(nums).toFixed(2))
-      // Median
-      const sorted = [...nums].sort((a, b) => a - b)
+
+      // For quantiles and sorting on large datasets (> 50,000 values), sample for speed
+      let sortSample = nums
+      if (nums.length > 50000) {
+        const step = Math.ceil(nums.length / 50000)
+        sortSample = []
+        for (let i = 0; i < nums.length; i += step) {
+          sortSample.push(nums[i])
+        }
+      }
+
+      const sorted = sortSample.slice().sort((a, b) => a - b)
       const mid = Math.floor(sorted.length / 2)
       profile.median = sorted.length % 2 === 0
         ? parseFloat(((sorted[mid - 1] + sorted[mid]) / 2).toFixed(2))

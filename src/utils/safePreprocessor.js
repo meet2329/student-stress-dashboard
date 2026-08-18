@@ -209,7 +209,7 @@ export function preprocessDataset(parsedDataset, profile, options = {}) {
   // 1. Type conversion
   if (doConvert) {
     const { changes } = convertTypes(rows, profile.columnProfiles)
-    allChanges.push(...changes)
+    if (changes && changes.length > 0) changes.forEach(c => allChanges.push(c))
   }
 
   // 2. Duplicate removal
@@ -231,13 +231,13 @@ export function preprocessDataset(parsedDataset, profile, options = {}) {
   // 3. Category normalization
   if (doNormalize) {
     const { changes } = normalizeCategories(rows, profile.columnProfiles)
-    allChanges.push(...changes)
+    if (changes && changes.length > 0) changes.forEach(c => allChanges.push(c))
   }
 
   // 4. Missing value imputation
   if (doImpute) {
     const { changes } = imputeMissing(rows, profile.columnProfiles)
-    allChanges.push(...changes)
+    if (changes && changes.length > 0) changes.forEach(c => allChanges.push(c))
   }
 
   const report = {

@@ -1,8 +1,4 @@
-/**
- * Data Quality Analyzer
- * Inspects a profiled dataset for quality issues, computes a quality score,
- * and determines if analysis should proceed.
- */
+import { safeMin, safeMax } from './csvAnalyticsEngine'
 
 // ─── Missing Data Analysis ─────────────────────────────────────────────────────
 
@@ -129,8 +125,8 @@ function analyzeOutliers(columnProfiles, rows) {
           pct: outlierPct,
           lowerBound: parseFloat(lowerBound.toFixed(2)),
           upperBound: parseFloat(upperBound.toFixed(2)),
-          minOutlier: parseFloat(Math.min(...outliers).toFixed(2)),
-          maxOutlier: parseFloat(Math.max(...outliers).toFixed(2))
+          minOutlier: parseFloat(safeMin(outliers).toFixed(2)),
+          maxOutlier: parseFloat(safeMax(outliers).toFixed(2))
         }
 
         if (outlierPct > 10) {

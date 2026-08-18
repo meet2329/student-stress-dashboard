@@ -4,7 +4,7 @@
  * Used when NVIDIA AI is unavailable or as validation for AI-generated chart specs.
  */
 
-import { pearsonCorrelation, linearRegression, mean } from './csvAnalyticsEngine'
+import { pearsonCorrelation, linearRegression, mean, safeMin, safeMax } from './csvAnalyticsEngine'
 
 // ─── Univariate Chart Selection ────────────────────────────────────────────────
 
@@ -284,11 +284,15 @@ export function generateKpis(profile) {
 // ─── Compute Histogram Data for a Numerical Column ─────────────────────────────
 
 export function computeHistogramData(rows, colName, bucketCount = 6) {
-  const values = rows.map(r => Number(r[colName])).filter(n => !isNaN(n))
+  const values = []
+  for (let i = 0; i < rows.length; i++) {
+    const n = Number(rows[i][colName])
+    if (!isNaN(n)) values.push(n)
+  }
   if (values.length === 0) return []
 
-  const min = Math.min(...values)
-  const max = Math.max(...values)
+  const min = safeMin(values)
+  const max = safeMax(values)
   if (min === max) return [{ range: String(min), count: values.length }]
 
   const step = (max - min) / bucketCount
@@ -329,9 +333,16 @@ export function computeCategoryData(rows, colName) {
 // ─── Compute Binned Scatter Data ───────────────────────────────────────────────
 
 export function computeScatterData(rows, xCol, yCol) {
-  const pairs = rows
-    .map(r => ({ x: Number(r[xCol]), y: Number(r[yCol]) }))
-    .filter(p => !isNaN(p.x) && !isNaN(p.y))
+  const pairs = []
+  const step = rows.length > 10000 ? Math.ceil(rows.length / 10000) : 1
+
+  for (let i = 0; i < rows.length; i += step) {
+    const x = Number(rows[i][xCol])
+    const y = Number(rows[i][yCol])
+    if (!isNaN(x) && !isNaN(y)) {
+      pairs.push({ x, y })
+    }
+  }
 
   if (pairs.length === 0) return []
 

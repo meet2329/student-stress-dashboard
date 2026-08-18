@@ -6,25 +6,6 @@
 
 import { pearsonCorrelation, linearRegression, mean } from './csvAnalyticsEngine'
 
-// ─── Chart Type Mapping by Data Type Combination ───────────────────────────────
-
-const CHART_RULES = {
-  // Univariate
-  numerical_single: ['histogram', 'boxplot'],
-  categorical_single_low: ['bar', 'donut'],       // ≤ 8 categories
-  categorical_single_high: ['bar'],                // > 8 categories
-  boolean_single: ['donut'],
-
-  // Bivariate
-  numerical_numerical: ['scatter'],
-  categorical_numerical: ['groupedBar', 'boxplot'],
-  numerical_categorical: ['groupedBar', 'boxplot'],
-  categorical_categorical: ['groupedBar'],
-
-  // Multivariate
-  multi_numerical: ['heatmap', 'bubble'],
-}
-
 // ─── Univariate Chart Selection ────────────────────────────────────────────────
 
 export function selectUnivariateCharts(profile) {
@@ -37,8 +18,8 @@ export function selectUnivariateCharts(profile) {
       charts.push({
         chartType: 'histogram',
         column: col.name,
-        title: `Distribution of ${col.name}`,
-        reason: `"${col.name}" is a numerical variable (range: ${col.min} – ${col.max}, mean: ${col.mean}). A histogram reveals the shape and spread of its distribution.`,
+        title: `Distribution: ${col.name}`,
+        reason: `Examines distribution spread and frequency shape.`,
         dataType: 'numerical',
         stats: { min: col.min, max: col.max, mean: col.mean, median: col.median, std: col.std }
       })
@@ -50,8 +31,8 @@ export function selectUnivariateCharts(profile) {
         charts.push({
           chartType: 'donut',
           column: col.name,
-          title: `${col.name} Composition`,
-          reason: `"${col.name}" is categorical with ${catCount} categories. A donut chart shows the proportional breakdown.`,
+          title: `${col.name} Breakdown`,
+          reason: `Shows proportional category breakdown.`,
           dataType: 'categorical',
           categories: col.topCategories
         })
@@ -59,8 +40,8 @@ export function selectUnivariateCharts(profile) {
         charts.push({
           chartType: 'bar',
           column: col.name,
-          title: `${col.name} — Top Categories`,
-          reason: `"${col.name}" has ${catCount} categories. A bar chart of the top values highlights the most frequent categories.`,
+          title: `Top ${col.name} Categories`,
+          reason: `Highlights most frequent category values.`,
           dataType: 'categorical',
           categories: (col.topCategories || []).slice(0, 10)
         })
@@ -108,7 +89,7 @@ export function selectBivariateCharts(profile, rows) {
         x: pair.x,
         y: pair.y,
         title: `${pair.x} vs ${pair.y}`,
-        reason: `Both "${pair.x}" and "${pair.y}" are numerical. Pearson r = ${pair.r > 0 ? '+' : ''}${pair.r.toFixed(2)} suggests a ${pair.absR > 0.5 ? 'strong' : pair.absR > 0.3 ? 'moderate' : 'weak'} ${pair.r >= 0 ? 'positive' : 'negative'} relationship.`,
+        reason: `Scatter correlation: r = ${pair.r > 0 ? '+' : ''}${pair.r.toFixed(2)} (${(pair.r * pair.r * 100).toFixed(0)}% variance).`,
         dataType: 'numerical_numerical',
         correlation: pair.r,
         slope: reg.slope,
@@ -148,8 +129,8 @@ export function selectBivariateCharts(profile, rows) {
             columns: [cat.name, num.name],
             x: cat.name,
             y: num.name,
-            title: `${num.name} by ${cat.name}`,
-            reason: `Comparing average "${num.name}" across "${cat.name}" categories reveals whether group membership affects the numerical outcome.`,
+            title: `Mean ${num.name} by ${cat.name}`,
+            reason: `Compares average ${num.name} across ${cat.name} groups.`,
             dataType: 'categorical_numerical',
             groupData: groupMeans
           })
@@ -172,7 +153,7 @@ export function selectMultivariateCharts(profile, rows) {
 
   // Correlation Heatmap: need at least 3 numerical columns
   if (numCols.length >= 3) {
-    const variables = numCols.slice(0, 12).map(c => c.name) // cap at 12 for readability
+    const variables = numCols.slice(0, 12).map(c => c.name)
     const matrix = []
 
     for (let i = 0; i < variables.length; i++) {
@@ -192,30 +173,11 @@ export function selectMultivariateCharts(profile, rows) {
     charts.push({
       chartType: 'heatmap',
       columns: variables,
-      title: `${variables.length}×${variables.length} Correlation Matrix`,
-      reason: `With ${numCols.length} numerical variables, a correlation heatmap reveals the pairwise linear relationships and helps identify collinearity and key drivers.`,
+      title: `Correlation Heatmap (${variables.length} Variables)`,
+      reason: `Evaluates pairwise linear interactions across all continuous features.`,
       dataType: 'multi_numerical',
       variables,
       matrix
-    })
-  }
-
-  // Bubble chart: need at least 3 numerical columns + optionally a categorical for color
-  if (numCols.length >= 3) {
-    const catCols = profile.columnProfiles.filter(c =>
-      (c.inferredType === 'categorical') && !c.isIdLike && c.uniqueCount >= 2 && c.uniqueCount <= 8
-    )
-
-    charts.push({
-      chartType: 'bubble',
-      columns: [numCols[0].name, numCols[1].name, numCols[2].name],
-      x: numCols[0].name,
-      y: numCols[1].name,
-      size: numCols[2].name,
-      color: catCols.length > 0 ? catCols[0].name : null,
-      title: `${numCols[0].name} × ${numCols[1].name} × ${numCols[2].name}`,
-      reason: `A bubble chart maps three numerical dimensions simultaneously: X-axis (${numCols[0].name}), Y-axis (${numCols[1].name}), and bubble size (${numCols[2].name})${catCols.length > 0 ? `, colored by ${catCols[0].name}` : ''}.`,
-      dataType: 'multi_numerical'
     })
   }
 
@@ -224,7 +186,7 @@ export function selectMultivariateCharts(profile, rows) {
 
 // ─── KPI Generation ────────────────────────────────────────────────────────────
 
-export function generateKpis(profile, rows) {
+export function generateKpis(profile) {
   const kpis = []
 
   // Total records
@@ -291,7 +253,7 @@ export function generateKpis(profile, rows) {
     const primary = catCols[0]
     const top = primary.topCategories[0]
     kpis.push({
-      title: `Most Common ${primary.name}`,
+      title: `Top ${primary.name}`,
       value: top.value,
       unit: `${top.pct}%`,
       subtitle: `${primary.uniqueCount} unique categories`,
@@ -316,7 +278,7 @@ export function generateKpis(profile, rows) {
     })
   }
 
-  return kpis.slice(0, 6) // Max 6 KPIs
+  return kpis.slice(0, 6)
 }
 
 // ─── Compute Histogram Data for a Numerical Column ─────────────────────────────
@@ -410,38 +372,22 @@ export function generateFallbackInsights(profile, rows) {
         const r = pearsonCorrelation(xVals, yVals)
 
         if (Math.abs(r) > 0.3) {
-          const direction = r > 0 ? 'positive' : 'negative'
-          const strength = Math.abs(r) > 0.6 ? 'strong' : 'moderate'
+          const direction = r > 0 ? 'positive' : 'inverse'
+          const strength = Math.abs(r) > 0.6 ? 'Strong' : 'Moderate'
           insights.push({
             id: insights.length + 1,
-            observation: `${numCols[i].name} and ${numCols[j].name} show a ${strength} ${direction} relationship.`,
-            evidence: `Pearson correlation coefficient r = ${r > 0 ? '+' : ''}${r.toFixed(3)}, R² = ${(r * r).toFixed(3)}.`,
-            interpretation: `As ${numCols[i].name} ${r > 0 ? 'increases' : 'increases'}, ${numCols[j].name} tends to ${r > 0 ? 'increase' : 'decrease'}. This is a statistical association, not a causal claim.`,
+            title: `${numCols[i].name} & ${numCols[j].name} Correlation`,
+            observation: `${numCols[i].name} and ${numCols[j].name} exhibit a ${strength.toLowerCase()} ${direction} linear relationship.`,
+            evidence: `Pearson r = ${r > 0 ? '+' : ''}${r.toFixed(3)}, R² = ${(r * r).toFixed(3)}.`,
+            interpretation: `As ${numCols[i].name} increases, ${numCols[j].name} tends to ${r > 0 ? 'increase' : 'decrease'}.`,
             confidence: Math.abs(r) > 0.5 ? 'High' : 'Moderate',
-            severity: Math.abs(r) > 0.5 ? 'High' : 'Moderate'
+            severity: Math.abs(r) > 0.5 ? 'High' : 'Moderate',
+            category: 'Correlation'
           })
         }
       }
     }
   }
-
-  // Distribution insights
-  numCols.forEach(col => {
-    if (insights.length >= 8) return
-    if (col.std !== undefined && col.mean !== undefined && col.mean !== 0) {
-      const cv = (col.std / Math.abs(col.mean)) * 100
-      if (cv > 50) {
-        insights.push({
-          id: insights.length + 1,
-          observation: `"${col.name}" shows high variability.`,
-          evidence: `Coefficient of variation = ${cv.toFixed(1)}%, standard deviation = ${col.std}, mean = ${col.mean}.`,
-          interpretation: `The data in this column is highly dispersed around the mean, suggesting significant differences across records.`,
-          confidence: 'High',
-          severity: 'Moderate'
-        })
-      }
-    }
-  })
 
   return insights
 }
@@ -454,10 +400,11 @@ export function generateFallbackRecommendations(profile, insights) {
   if (insights.length === 0) {
     return [{
       id: 1,
-      title: 'Insufficient Evidence',
-      description: 'The dataset does not contain enough measurable relationships to generate reliable recommendations. Consider adding more variables or records.',
+      title: 'Collect Additional Data',
+      description: 'The dataset has limited variance. Collecting more observations is recommended.',
       priority: 'Low',
-      evidence: 'No significant correlations detected.'
+      evidence: 'No strong correlations found.',
+      action: 'Expand dataset sample size.'
     }]
   }
 
@@ -465,10 +412,11 @@ export function generateFallbackRecommendations(profile, insights) {
     if (recs.length >= 5) return
     recs.push({
       id: idx + 1,
-      title: `Investigate: ${insight.observation.split('.')[0]}`,
-      description: `Based on the observed ${insight.confidence.toLowerCase()}-confidence pattern, further analysis or data collection is recommended to understand the underlying mechanism.`,
+      title: `Investigate ${insight.title || 'Key Association'}`,
+      description: `Validate the observed pattern with domain stakeholders.`,
       priority: insight.confidence === 'High' ? 'High' : 'Medium',
-      evidence: insight.evidence
+      evidence: insight.evidence,
+      action: `Monitor ${insight.observation.split(' ')[0]} thresholds.`
     })
   })
 

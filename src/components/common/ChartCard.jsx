@@ -1,13 +1,13 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Maximize2, Minimize2, Info, Download, Database, HelpCircle, Sparkles } from 'lucide-react'
+import { Maximize2, Minimize2, Info, Database, Sparkles, HelpCircle } from 'lucide-react'
 
 export default function ChartCard({
   title,
   subtitle,
   tag,
-  columnsUsed, // "Kis column ka analysis hai" (e.g. "Screen_Time vs. Stress_Score")
-  whyDone,     // "Kyu kiya hai / Purpose" (e.g. "Yeh dekhne ke liye ki daily screen exposure se stress kitna badhta hai.")
+  columnsUsed, // e.g. "Screen_Time vs. Stress_Score"
+  whyDone,     // Short concise English objective
   infoText,
   children,
   headerAction,
@@ -18,7 +18,7 @@ export default function ChartCard({
   const [showInfo, setShowInfo] = useState(false)
 
   const cardContent = (
-    <div className={`flex flex-col h-full bg-white rounded-2xl border border-slate-200/90 shadow-sm transition-all overflow-hidden ${className}`}>
+    <div className={`flex flex-col h-full bg-white rounded-2xl border border-slate-200/90 shadow-xs transition-all overflow-hidden ${className}`}>
       {/* Card Top Header */}
       <div className="px-5 py-3.5 border-b border-slate-100 flex items-start justify-between gap-3 bg-slate-50/50">
         <div className="space-y-0.5 min-w-0">
@@ -47,7 +47,7 @@ export default function ChartCard({
             <div className="relative">
               <button
                 onClick={() => setShowInfo(!showInfo)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
                 title="Detailed statistical info"
               >
                 <Info className="w-4 h-4" />
@@ -69,7 +69,7 @@ export default function ChartCard({
 
           <button
             onClick={() => setIsFullscreen(!isFullscreen)}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
             title={isFullscreen ? 'Exit fullscreen' : 'Expand chart'}
           >
             {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
@@ -77,27 +77,27 @@ export default function ChartCard({
         </div>
       </div>
 
-      {/* "Kis Column Ka Hai" & "Kyu Kiya Hai" Plain-Language Banner */}
+      {/* Feature & Purpose Info Banner (Short & Clean English) */}
       {(columnsUsed || whyDone) && (
-        <div className="px-5 py-2.5 bg-blue-50/60 border-b border-blue-100/70 text-xs space-y-1">
+        <div className="px-5 py-2 bg-blue-50/50 border-b border-blue-100/60 text-xs flex flex-wrap items-center justify-between gap-2">
           {columnsUsed && (
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="px-1.5 py-0.5 rounded bg-blue-100/90 text-blue-900 text-[10px] font-extrabold uppercase font-mono tracking-wide flex items-center gap-1">
-                <Database className="w-3 h-3 text-blue-700" />
+            <div className="flex items-center gap-1.5">
+              <span className="px-1.5 py-0.5 rounded bg-blue-100/80 text-blue-800 text-[10px] font-bold uppercase font-mono tracking-wide flex items-center gap-1">
+                <Database className="w-3 h-3 text-blue-600" />
                 Column:
               </span>
-              <span className="font-mono font-bold text-slate-800 text-[11px]">
+              <span className="font-mono font-bold text-slate-800 text-xs">
                 {columnsUsed}
               </span>
             </div>
           )}
           {whyDone && (
-            <div className="flex items-start gap-1.5 text-slate-700 pt-0.5">
-              <span className="px-1.5 py-0.5 rounded bg-emerald-100/90 text-emerald-900 text-[10px] font-extrabold uppercase tracking-wide flex-shrink-0 mt-0.5 flex items-center gap-1">
-                <HelpCircle className="w-3 h-3 text-emerald-700" />
-                Kyu Kiya (Purpose):
+            <div className="flex items-center gap-1.5 text-slate-600">
+              <span className="px-1.5 py-0.5 rounded bg-emerald-100/80 text-emerald-800 text-[10px] font-bold uppercase tracking-wide flex-shrink-0 flex items-center gap-1">
+                <Sparkles className="w-3 h-3 text-emerald-600" />
+                Purpose:
               </span>
-              <span className="leading-relaxed text-[11px] font-medium text-slate-700">
+              <span className="text-[11px] font-medium text-slate-700">
                 {whyDone}
               </span>
             </div>

@@ -39,8 +39,8 @@ export default function EmptyEdaState() {
       setError('Please select a valid .csv file.')
       return
     }
-    if (file.size > 50 * 1024 * 1024) {
-      setError('File size exceeds 50MB limit. Please use a smaller dataset.')
+    if (file.size > 200 * 1024 * 1024) {
+      setError('File size exceeds 200MB limit. Please use a smaller dataset.')
       return
     }
     setError(null)
@@ -115,7 +115,7 @@ export default function EmptyEdaState() {
               Drag & drop your CSV dataset here, or <span className="text-blue-600 underline">Browse File</span>
             </p>
             <p className="text-xs text-slate-400 font-medium">
-              Supported file format: standard CSV (comma-delimited) up to 50MB
+              Supported file format: standard CSV (comma-delimited) up to 200MB
             </p>
           </div>
         </div>

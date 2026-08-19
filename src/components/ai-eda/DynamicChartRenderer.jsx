@@ -161,9 +161,9 @@ function HeatmapWrapper({ variables, matrix }) {
 // ─── Main Dynamic Chart Renderer ───────────────────────────────────────────────
 
 export default function DynamicChartRenderer({ chartSpec }) {
-  const { analysisData, datasetProfile } = useAIEda()
+  const { analysisData, datasetProfile, rawDataset } = useAIEda()
 
-  const rows = analysisData?.rows || []
+  const rows = analysisData?.rows || rawDataset?.rows || []
 
   const chartContent = useMemo(() => {
     if (!chartSpec || rows.length === 0) return null

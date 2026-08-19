@@ -184,10 +184,14 @@ export function AIEdaProvider({ children }) {
     if (snapshot.datasetProfile !== undefined) setDatasetProfile(snapshot.datasetProfile)
     if (snapshot.dataQuality !== undefined) setDataQuality(snapshot.dataQuality)
     if (snapshot.preprocessingReport !== undefined) setPreprocessingReport(snapshot.preprocessingReport)
-    if (snapshot.analysisData !== undefined) setAnalysisData(snapshot.analysisData)
+    
+    // Ensure analysisData is properly populated
+    const effectiveAnalysisData = snapshot.analysisData || (snapshot.rawDataset ? { headers: snapshot.rawDataset.headers || [], rows: snapshot.rawDataset.rows || [] } : null)
+    setAnalysisData(effectiveAnalysisData)
+
     if (snapshot.aiPlan !== undefined) setAiPlan(snapshot.aiPlan)
     if (snapshot.isAiFallback !== undefined) setIsAiFallback(Boolean(snapshot.isAiFallback))
-    setPipelineStage(snapshot.pipelineStage || STAGES.READY)
+    setPipelineStage(STAGES.READY)
   }, [])
 
   // ─── Context Value ─────────────────────────────────────────────────────────

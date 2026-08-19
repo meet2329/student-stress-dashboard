@@ -77,6 +77,43 @@ export const EXPIRATION_PRESETS = [
   { id: 'never', label: 'Permanent', durationMs: null, description: 'Does not expire automatically' },
 ]
 
+// Helper: UTF-8 safe Base64 URL Encoder
+export function encodePayloadToUrl(data) {
+  try {
+    const json = JSON.stringify(data)
+    const utf8Bytes = new TextEncoder().encode(json)
+    let binary = ''
+    for (let i = 0; i < utf8Bytes.length; i++) {
+      binary += String.fromCharCode(utf8Bytes[i])
+    }
+    return encodeURIComponent(btoa(binary))
+  } catch (e) {
+    console.warn('URL payload encode notice:', e)
+    return ''
+  }
+}
+
+// Helper: UTF-8 safe Base64 URL Decoder
+export function decodePayloadFromUrl(encodedStr) {
+  try {
+    if (!encodedStr) return null
+    let raw = encodedStr.trim()
+    if (raw.startsWith('#')) raw = raw.slice(1)
+    if (raw.startsWith('d=')) raw = raw.slice(2)
+    const decodedUri = decodeURIComponent(raw)
+    const binary = atob(decodedUri)
+    const bytes = new Uint8Array(binary.length)
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i)
+    }
+    const json = new TextDecoder().decode(bytes)
+    return JSON.parse(json)
+  } catch (e) {
+    console.warn('URL payload decode notice:', e)
+    return null
+  }
+}
+
 /**
  * Creates a temporary shareable dashboard snapshot.
  * 
@@ -126,10 +163,10 @@ export async function createShareLink({
     state: sanitizeStatePayload(state)
   }
 
-  // 1. Always save to LocalStorage for instant retrieval and offline access
+  // 1. Always save to LocalStorage for instant retrieval and creator management
   saveLocalShare(sharePayload)
 
-  // 2. Save to Firestore if database is available
+  // 2. Save to Firestore if available
   if (db) {
     try {
       const docRef = doc(db, COLLECTION_NAME, shareId)
@@ -138,13 +175,16 @@ export async function createShareLink({
         serverCreatedAt: serverTimestamp()
       })
     } catch (firestoreErr) {
-      console.warn('Firestore share creation note (fallback active):', firestoreErr.message)
+      console.warn('Firestore share note (URL fallback will be used):', firestoreErr.message)
     }
   }
 
-  // Construct absolute URL
+  // 3. Generate self-contained URL with embedded payload
   const origin = typeof window !== 'undefined' ? window.location.origin : ''
-  const shareUrl = `${origin}/share/${shareId}`
+  const encodedPayload = encodePayloadToUrl(sharePayload)
+  const shareUrl = encodedPayload 
+    ? `${origin}/share/${shareId}#d=${encodedPayload}`
+    : `${origin}/share/${shareId}`
 
   return {
     shareId,
@@ -156,19 +196,20 @@ export async function createShareLink({
 }
 
 /**
- * Retrieves and validates a shared dashboard by its unique share ID.
+ * Retrieves and validates a shared dashboard by its unique share ID and optional hash payload.
  * 
  * @param {string} shareId 
+ * @param {string} [hashPayload]
  * @returns {Promise<{ success: boolean, data?: Object, isExpired?: boolean, isRevoked?: boolean, requiresPin?: boolean, error?: string }>}
  */
-export async function getSharedDashboard(shareId) {
+export async function getSharedDashboard(shareId, hashPayload = '') {
   if (!shareId) {
     return { success: false, error: 'Invalid share link ID.' }
   }
 
   let record = null
 
-  // 1. Try Firestore first
+  // 1. First attempt: Firestore Database
   if (db) {
     try {
       const docRef = doc(db, COLLECTION_NAME, shareId)
@@ -181,7 +222,18 @@ export async function getSharedDashboard(shareId) {
     }
   }
 
-  // 2. Fallback to LocalStorage if not found or offline
+  // 2. Second attempt: Embedded URL Hash Payload
+  if (!record) {
+    const rawHash = hashPayload || (typeof window !== 'undefined' ? window.location.hash : '')
+    if (rawHash) {
+      const parsedFromHash = decodePayloadFromUrl(rawHash)
+      if (parsedFromHash && parsedFromHash.id === shareId) {
+        record = parsedFromHash
+      }
+    }
+  }
+
+  // 3. Third attempt: LocalStorage
   if (!record) {
     const localShares = getLocalShares()
     record = localShares[shareId] || null
@@ -190,7 +242,7 @@ export async function getSharedDashboard(shareId) {
   if (!record) {
     return {
       success: false,
-      error: 'Dashboard not found. The link may be incorrect or was permanently deleted.'
+      error: 'Dashboard not found. The link may be incorrect, corrupted, or deleted.'
     }
   }
 

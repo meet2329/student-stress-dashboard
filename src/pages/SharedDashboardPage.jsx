@@ -94,7 +94,8 @@ export default function SharedDashboardPage() {
       setErrorMessage(null)
 
       try {
-        const result = await getSharedDashboard(shareId)
+        const hash = typeof window !== 'undefined' ? window.location.hash : ''
+        const result = await getSharedDashboard(shareId, hash)
 
         if (!isMounted) return
 

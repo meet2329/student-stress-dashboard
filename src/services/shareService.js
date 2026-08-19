@@ -99,7 +99,15 @@ export function decodePayloadFromUrl(encodedStr) {
     if (!encodedStr) return null
     let raw = encodedStr.trim()
     if (raw.startsWith('#')) raw = raw.slice(1)
+    if (raw.startsWith('?')) raw = raw.slice(1)
     if (raw.startsWith('d=')) raw = raw.slice(2)
+    if (raw.includes('d=')) {
+      try {
+        const params = new URLSearchParams(raw)
+        const dVal = params.get('d')
+        if (dVal) raw = dVal
+      } catch {}
+    }
     const decodedUri = decodeURIComponent(raw)
     const binary = atob(decodedUri)
     const bytes = new Uint8Array(binary.length)
@@ -175,7 +183,7 @@ export async function createShareLink({
         serverCreatedAt: serverTimestamp()
       })
     } catch (firestoreErr) {
-      console.warn('Firestore share note (URL fallback will be used):', firestoreErr.message)
+      console.warn('Firestore share note (URL fallback active):', firestoreErr.message)
     }
   }
 
@@ -222,12 +230,12 @@ export async function getSharedDashboard(shareId, hashPayload = '') {
     }
   }
 
-  // 2. Second attempt: Embedded URL Hash Payload
+  // 2. Second attempt: Embedded URL Hash or Search Payload
   if (!record) {
-    const rawHash = hashPayload || (typeof window !== 'undefined' ? window.location.hash : '')
+    const rawHash = hashPayload || (typeof window !== 'undefined' ? (window.location.hash || window.location.search) : '')
     if (rawHash) {
       const parsedFromHash = decodePayloadFromUrl(rawHash)
-      if (parsedFromHash && parsedFromHash.id === shareId) {
+      if (parsedFromHash && (parsedFromHash.id === shareId || parsedFromHash.state)) {
         record = parsedFromHash
       }
     }

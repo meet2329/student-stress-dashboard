@@ -347,12 +347,16 @@ export function formatTimeRemaining(expiresAt) {
 }
 
 /**
- * Clean & prune oversized state before sharing
+ * Clean & prune oversized state before sharing, ensuring no undefined values reach Firestore
  */
 function sanitizeStatePayload(state) {
   if (!state) return {}
   try {
-    const copy = JSON.parse(JSON.stringify(state))
+    const jsonString = JSON.stringify(state, (key, value) => {
+      if (value === undefined) return null
+      return value
+    })
+    const copy = JSON.parse(jsonString)
     // If rawDataset is huge (>5000 rows), limit the stored sample to keep payload swift
     if (copy.rawDataset && Array.isArray(copy.rawDataset.rows) && copy.rawDataset.rows.length > 5000) {
       copy.rawDataset.rows = copy.rawDataset.rows.slice(0, 5000)
@@ -360,6 +364,6 @@ function sanitizeStatePayload(state) {
     }
     return copy
   } catch {
-    return state
+    return {}
   }
 }

@@ -189,14 +189,13 @@ export default function SharedDashboardPage() {
   // ─── 1. Loading Screen ───────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 relative overflow-hidden">
-        <div className="absolute top-1/4 left-1/3 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col items-center justify-center p-6 relative overflow-hidden">
         <div className="relative z-10 flex flex-col items-center space-y-4">
-          <div className="p-4 rounded-3xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 animate-pulse shadow-xl">
-            <RefreshCw className="w-8 h-8 animate-spin" />
+          <div className="p-4 rounded-3xl bg-blue-50 text-blue-600 border border-blue-200 animate-pulse shadow-md">
+            <RefreshCw className="w-8 h-8 animate-spin text-blue-600" />
           </div>
-          <h2 className="text-xl font-bold tracking-wide">Loading Shared Dashboard...</h2>
-          <p className="text-xs text-slate-400 font-mono">Validating cryptographic snapshot & expiration token</p>
+          <h2 className="text-xl font-extrabold tracking-tight text-slate-900">Loading Shared Dashboard...</h2>
+          <p className="text-xs text-slate-500 font-mono">Validating cryptographic snapshot & expiration token</p>
         </div>
       </div>
     )
@@ -205,25 +204,25 @@ export default function SharedDashboardPage() {
   // ─── 2. Expired Screen ──────────────────────────────────────────────────────
   if (isExpired) {
     return (
-      <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 relative">
-        <div className="max-w-md w-full p-8 rounded-3xl bg-slate-900/90 border border-rose-500/30 shadow-2xl backdrop-blur-xl text-center space-y-6">
+      <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col items-center justify-center p-6 relative">
+        <div className="max-w-md w-full p-8 rounded-3xl bg-white border border-rose-200 shadow-xl text-center space-y-6">
           <motion.div 
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            className="w-16 h-16 rounded-3xl bg-rose-500/20 text-rose-400 border border-rose-500/40 flex items-center justify-center mx-auto shadow-lg shadow-rose-500/10"
+            className="w-16 h-16 rounded-3xl bg-rose-50 text-rose-600 border border-rose-200 flex items-center justify-center mx-auto shadow-sm"
           >
-            <Clock className="w-8 h-8 text-rose-400" />
+            <Clock className="w-8 h-8 text-rose-600" />
           </motion.div>
 
           <div className="space-y-2">
-            <span className="px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 text-[11px] font-extrabold uppercase tracking-wider">
+            <span className="px-3 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200 text-[11px] font-extrabold uppercase tracking-wider">
               Access Expired
             </span>
-            <h2 className="text-2xl font-black text-white">This Shared Link Has Expired</h2>
-            <p className="text-xs text-slate-400 leading-relaxed">
+            <h2 className="text-2xl font-black text-slate-900">This Shared Link Has Expired</h2>
+            <p className="text-xs text-slate-600 leading-relaxed">
               The temporary validity period for this dashboard has concluded.
               {dashboardData?.expiresAt && (
-                <span className="block mt-1 text-slate-300 font-mono">
+                <span className="block mt-1 text-slate-800 font-mono font-semibold">
                   Expired on: {new Date(dashboardData.expiresAt).toLocaleString()}
                 </span>
               )}
@@ -233,7 +232,7 @@ export default function SharedDashboardPage() {
           <div className="pt-2 flex flex-col gap-3">
             <Link
               to="/"
-              className="w-full py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm shadow-xl shadow-indigo-600/30 transition-all flex items-center justify-center gap-2"
+              className="w-full py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-md shadow-blue-500/20 transition-all flex items-center justify-center gap-2"
             >
               <Home className="w-4 h-4" />
               Go to Analytics Home
@@ -247,18 +246,18 @@ export default function SharedDashboardPage() {
   // ─── 3. Revoked Screen ──────────────────────────────────────────────────────
   if (isRevoked) {
     return (
-      <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6 relative">
-        <div className="max-w-md w-full p-8 rounded-3xl bg-slate-900/90 border border-amber-500/30 shadow-2xl backdrop-blur-xl text-center space-y-6">
-          <div className="w-16 h-16 rounded-3xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center mx-auto shadow-lg shadow-amber-500/10">
-            <AlertTriangle className="w-8 h-8 text-amber-400" />
+      <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col items-center justify-center p-6 relative">
+        <div className="max-w-md w-full p-8 rounded-3xl bg-white border border-amber-200 shadow-xl text-center space-y-6">
+          <div className="w-16 h-16 rounded-3xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center mx-auto shadow-sm">
+            <AlertTriangle className="w-8 h-8 text-amber-600" />
           </div>
 
           <div className="space-y-2">
-            <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[11px] font-extrabold uppercase tracking-wider">
+            <span className="px-3 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-[11px] font-extrabold uppercase tracking-wider">
               Link Revoked
             </span>
-            <h2 className="text-2xl font-black text-white">Access Has Been Revoked</h2>
-            <p className="text-xs text-slate-400 leading-relaxed">
+            <h2 className="text-2xl font-black text-slate-900">Access Has Been Revoked</h2>
+            <p className="text-xs text-slate-600 leading-relaxed">
               The owner of this dashboard has deactivated this share link.
             </p>
           </div>
@@ -278,18 +277,18 @@ export default function SharedDashboardPage() {
   // ─── 4. Error Screen ────────────────────────────────────────────────────────
   if (errorMessage || !dashboardData) {
     return (
-      <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6">
-        <div className="max-w-md w-full p-8 rounded-3xl bg-slate-900/90 border border-slate-800 shadow-2xl text-center space-y-6">
-          <div className="w-16 h-16 rounded-3xl bg-slate-800 text-slate-400 flex items-center justify-center mx-auto">
+      <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col items-center justify-center p-6">
+        <div className="max-w-md w-full p-8 rounded-3xl bg-white border border-slate-200 shadow-xl text-center space-y-6">
+          <div className="w-16 h-16 rounded-3xl bg-slate-100 text-slate-500 flex items-center justify-center mx-auto">
             <AlertTriangle className="w-8 h-8" />
           </div>
           <div className="space-y-2">
-            <h2 className="text-2xl font-bold text-white">Link Not Found</h2>
-            <p className="text-xs text-slate-400">{errorMessage || 'Invalid share identifier or network error.'}</p>
+            <h2 className="text-2xl font-bold text-slate-900">Dashboard Link Not Found</h2>
+            <p className="text-xs text-slate-600">{errorMessage || 'Invalid share identifier or network error.'}</p>
           </div>
           <Link
             to="/"
-            className="w-full py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm flex items-center justify-center gap-2"
+            className="w-full py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-md shadow-blue-500/20"
           >
             <Home className="w-4 h-4" /> Return to Dashboard Home
           </Link>

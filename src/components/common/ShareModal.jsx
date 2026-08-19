@@ -530,8 +530,7 @@ export default function ShareModal({ isOpen, onClose }) {
                   <div className="space-y-3">
                     {userLinks.map((item) => {
                       const origin = typeof window !== 'undefined' ? window.location.origin : ''
-                      const encodedPayload = item.state ? encodePayloadToUrl(item) : ''
-                      const itemUrl = encodedPayload ? `${origin}/share/${item.id}#d=${encodedPayload}` : `${origin}/share/${item.id}`
+                      const itemUrl = `${origin}/share/${item.id}`
                       const timeInfo = formatTimeRemaining(item.expiresAt)
                       const isRevoked = Boolean(item.isRevoked)
 

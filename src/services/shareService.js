@@ -149,6 +149,8 @@ export async function createShareLink({
   const preset = EXPIRATION_PRESETS.find(p => p.id === durationId) || EXPIRATION_PRESETS[2]
   const expiresAt = preset.durationMs ? now + preset.durationMs : null
 
+  const cleanState = sanitizeStatePayload(state)
+
   const sharePayload = {
     id: shareId,
     title: title.trim() || 'Shared Dashboard',
@@ -168,13 +170,14 @@ export async function createShareLink({
       email: user?.email || null,
       photoURL: user?.photoURL || null
     },
-    state: sanitizeStatePayload(state)
+    state: cleanState
   }
 
-  // 1. Always save to LocalStorage for instant retrieval and creator management
+  // 1. Always save to LocalStorage for instant creator management & local testing
   saveLocalShare(sharePayload)
 
-  // 2. Save to Firestore if available
+  // 2. Save to Cloud Firestore Database
+  let firestoreSaved = false
   if (db) {
     try {
       const docRef = doc(db, COLLECTION_NAME, shareId)
@@ -182,24 +185,23 @@ export async function createShareLink({
         ...sharePayload,
         serverCreatedAt: serverTimestamp()
       })
+      firestoreSaved = true
     } catch (firestoreErr) {
-      console.warn('Firestore share note (URL fallback active):', firestoreErr.message)
+      console.warn('Firestore share creation warning:', firestoreErr.message)
     }
   }
 
-  // 3. Generate self-contained URL with embedded payload
+  // 3. Generate clean short URL
   const origin = typeof window !== 'undefined' ? window.location.origin : ''
-  const encodedPayload = encodePayloadToUrl(sharePayload)
-  const shareUrl = encodedPayload 
-    ? `${origin}/share/${shareId}#d=${encodedPayload}`
-    : `${origin}/share/${shareId}`
+  const shareUrl = `${origin}/share/${shareId}`
 
   return {
     shareId,
     shareUrl,
     expiresAt,
     durationLabel: preset.label,
-    payload: sharePayload
+    payload: sharePayload,
+    firestoreSaved
   }
 }
 
@@ -407,7 +409,7 @@ export function formatTimeRemaining(expiresAt) {
 }
 
 /**
- * Clean & prune oversized state before sharing, ensuring no undefined values reach Firestore
+ * Clean & prune oversized state before sharing, ensuring no undefined values reach Firestore (< 50KB total size)
  */
 function sanitizeStatePayload(state) {
   if (!state) return {}
@@ -417,11 +419,19 @@ function sanitizeStatePayload(state) {
       return value
     })
     const copy = JSON.parse(jsonString)
-    // If rawDataset is huge (>5000 rows), limit the stored sample to keep payload swift
-    if (copy.rawDataset && Array.isArray(copy.rawDataset.rows) && copy.rawDataset.rows.length > 5000) {
-      copy.rawDataset.rows = copy.rawDataset.rows.slice(0, 5000)
+    
+    // Sample rawDataset.rows to max 250 rows for fast & lightweight Cloud storage (<50KB)
+    if (copy.rawDataset && Array.isArray(copy.rawDataset.rows) && copy.rawDataset.rows.length > 250) {
+      copy.rawDataset.rows = copy.rawDataset.rows.slice(0, 250)
       copy.rawDataset.isSampled = true
     }
+
+    // Sample analysisData.rows to max 250 rows
+    if (copy.analysisData && Array.isArray(copy.analysisData.rows) && copy.analysisData.rows.length > 250) {
+      copy.analysisData.rows = copy.analysisData.rows.slice(0, 250)
+      copy.analysisData.isSampled = true
+    }
+
     return copy
   } catch {
     return {}

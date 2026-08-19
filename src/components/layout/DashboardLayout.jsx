@@ -6,12 +6,18 @@ import Header from './Header'
 import MethodologyModal from './MethodologyModal'
 import DatasetUploadModal from '../common/DatasetUploadModal'
 import NvidiaAiModal from '../common/NvidiaAiModal'
+import ShareModal from '../common/ShareModal'
 import AiDatasetIngestionStudio from '../onboarding/AiDatasetIngestionStudio'
 import { useFilter } from '../../context/FilterContext'
 
 export default function DashboardLayout() {
   const location = useLocation()
-  const { ingestionStudioOpen, setIngestionStudioOpen } = useFilter()
+  const { 
+    ingestionStudioOpen, 
+    setIngestionStudioOpen,
+    shareModalOpen,
+    setShareModalOpen 
+  } = useFilter()
 
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden">
@@ -50,6 +56,12 @@ export default function DashboardLayout() {
       <AiDatasetIngestionStudio 
         isOpen={ingestionStudioOpen}
         onClose={() => setIngestionStudioOpen(false)}
+      />
+
+      {/* Temporary Link Share Modal */}
+      <ShareModal
+        isOpen={shareModalOpen}
+        onClose={() => setShareModalOpen(false)}
       />
     </div>
   )

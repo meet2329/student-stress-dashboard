@@ -164,6 +164,32 @@ export function AIEdaProvider({ children }) {
     setIsAiFallback(false)
   }, [])
 
+  // ─── Snapshot Export & Load ───────────────────────────────────────────────
+  const exportAIEdaSnapshot = useCallback(() => ({
+    fileName,
+    rawDataset,
+    datasetProfile,
+    dataQuality,
+    preprocessingReport,
+    analysisData,
+    aiPlan,
+    isAiFallback,
+    pipelineStage
+  }), [fileName, rawDataset, datasetProfile, dataQuality, preprocessingReport, analysisData, aiPlan, isAiFallback, pipelineStage])
+
+  const loadAIEdaSnapshot = useCallback((snapshot) => {
+    if (!snapshot) return
+    if (snapshot.fileName !== undefined) setFileName(snapshot.fileName)
+    if (snapshot.rawDataset !== undefined) setRawDataset(snapshot.rawDataset)
+    if (snapshot.datasetProfile !== undefined) setDatasetProfile(snapshot.datasetProfile)
+    if (snapshot.dataQuality !== undefined) setDataQuality(snapshot.dataQuality)
+    if (snapshot.preprocessingReport !== undefined) setPreprocessingReport(snapshot.preprocessingReport)
+    if (snapshot.analysisData !== undefined) setAnalysisData(snapshot.analysisData)
+    if (snapshot.aiPlan !== undefined) setAiPlan(snapshot.aiPlan)
+    if (snapshot.isAiFallback !== undefined) setIsAiFallback(Boolean(snapshot.isAiFallback))
+    setPipelineStage(snapshot.pipelineStage || STAGES.READY)
+  }, [])
+
   // ─── Context Value ─────────────────────────────────────────────────────────
   const value = useMemo(() => ({
     // Pipeline
@@ -185,11 +211,14 @@ export function AIEdaProvider({ children }) {
     uploadDataset,
     rerunAiAnalysis,
     resetWorkspace,
+    exportAIEdaSnapshot,
+    loadAIEdaSnapshot,
   }), [
     pipelineStage, pipelineError, completedStages,
     fileName, rawDataset, datasetProfile, dataQuality,
     preprocessingReport, analysisData, aiPlan, isAiFallback,
-    uploadDataset, rerunAiAnalysis, resetWorkspace
+    uploadDataset, rerunAiAnalysis, resetWorkspace,
+    exportAIEdaSnapshot, loadAIEdaSnapshot
   ])
 
   return (

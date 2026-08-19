@@ -13,7 +13,8 @@ import {
   LogIn,
   LogOut,
   User,
-  Wand2
+  Wand2,
+  Share2
 } from 'lucide-react'
 import { useFilter } from '../../context/FilterContext'
 import { useAuth } from '../../context/AuthContext'
@@ -89,6 +90,7 @@ export default function Header() {
     setMethodologyOpen,
     setIngestionStudioOpen,
     setNvidiaModalOpen,
+    setShareModalOpen,
     nvidiaApiKey,
     aiAnalysisResult,
     customDataset
@@ -222,6 +224,16 @@ export default function Header() {
             <span className="bg-slate-800 text-slate-300 text-[10px] px-1.5 py-0.5 rounded font-mono">
               {customDataset ? customDataset.rowCount : '3k'}
             </span>
+          </button>
+
+          {/* Temporary Link Share Trigger */}
+          <button
+            onClick={() => setShareModalOpen(true)}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-bold shadow-md shadow-indigo-500/20 transition-all cursor-pointer group"
+            title="Generate Temporary Shareable Link"
+          >
+            <Share2 className="w-3.5 h-3.5 text-indigo-200 group-hover:scale-110 transition-transform" />
+            <span>Share</span>
           </button>
 
           {/* User Auth Profile / Login Button */}

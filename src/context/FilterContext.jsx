@@ -16,6 +16,7 @@ export function FilterProvider({ children }) {
   const [uploadModalOpen, setUploadModalOpen] = useState(false)
   const [ingestionStudioOpen, setIngestionStudioOpen] = useState(false)
   const [nvidiaModalOpen, setNvidiaModalOpen] = useState(false)
+  const [shareModalOpen, setShareModalOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [customDataset, setCustomDataset] = useState(null)
   const [uploadError, setUploadError] = useState(null)
@@ -253,6 +254,26 @@ export function FilterProvider({ children }) {
     activeDistributions,
     activeBivariate,
     activeInsights,
+    // Share Modal
+    shareModalOpen,
+    setShareModalOpen,
+    exportSnapshot: () => ({
+      selectedGender,
+      selectedUniversity,
+      selectedStressLevel,
+      searchQuery,
+      customDataset,
+      aiAnalysisResult
+    }),
+    loadSnapshot: (snapshot) => {
+      if (!snapshot) return
+      if (snapshot.selectedGender !== undefined) setSelectedGender(snapshot.selectedGender)
+      if (snapshot.selectedUniversity !== undefined) setSelectedUniversity(snapshot.selectedUniversity)
+      if (snapshot.selectedStressLevel !== undefined) setSelectedStressLevel(snapshot.selectedStressLevel)
+      if (snapshot.searchQuery !== undefined) setSearchQuery(snapshot.searchQuery)
+      if (snapshot.customDataset !== undefined) setCustomDataset(snapshot.customDataset)
+      if (snapshot.aiAnalysisResult !== undefined) setAiAnalysisResult(snapshot.aiAnalysisResult)
+    },
     // NVIDIA AI
     nvidiaApiKey,
     setNvidiaApiKey,

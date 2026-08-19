@@ -20,6 +20,7 @@ import DynamicBivariatePage from './pages/ai-eda/DynamicBivariatePage'
 import DynamicMultivariatePage from './pages/ai-eda/DynamicMultivariatePage'
 import AIInsightsPage from './pages/ai-eda/AIInsightsPage'
 import RecommendationsPage from './pages/ai-eda/RecommendationsPage'
+import SharedDashboardPage from './pages/SharedDashboardPage'
 
 export default function App() {
   return (
@@ -31,6 +32,9 @@ export default function App() {
               {/* 3D Animated Authentication Route */}
               <Route path="/login" element={<AuthPage />} />
               <Route path="/register" element={<AuthPage />} />
+
+              {/* Public Temporary Shareable Snapshot Route */}
+              <Route path="/share/:shareId" element={<SharedDashboardPage />} />
 
               {/* Dashboard Master Layout */}
               <Route path="/" element={<DashboardLayout />}>

@@ -52,8 +52,8 @@ export default function Sidebar() {
       {/* Brand Header */}
       <div className="p-4 border-b border-slate-800 flex items-center justify-between">
         <div className="flex items-center gap-3 overflow-hidden">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-blue-500/20 flex-shrink-0">
-            <GraduationCap className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-500 to-teal-400 flex items-center justify-center text-white shadow-md shadow-blue-500/20 flex-shrink-0">
+            <Cpu className="w-5 h-5" />
           </div>
           {!collapsed && (
             <motion.div
@@ -62,19 +62,19 @@ export default function Sidebar() {
               exit={{ opacity: 0, x: -10 }}
               className="min-w-0"
             >
-              <h1 className="text-sm font-bold text-white tracking-tight leading-none truncate">
-                Student Stress Analytics
+              <h1 className="text-sm font-extrabold text-white tracking-tight leading-none truncate">
+                AI-Powered EDA
               </h1>
               <p className="text-xs text-blue-400 font-medium tracking-wide mt-1 flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse"></span>
-                Data Science & AI
+                Data Science & AI Studio
               </p>
             </motion.div>
           )}
         </div>
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="hidden md:flex p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+          className="hidden md:flex p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
           title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
@@ -85,8 +85,8 @@ export default function Sidebar() {
       <div className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
         <div className="px-2 pb-2">
           {!collapsed && (
-            <p className="text-[11px] font-bold uppercase tracking-wider text-teal-400">
-              Autonomous EDA Studio
+            <p className="text-[10px] font-extrabold uppercase tracking-wider text-teal-400">
+              Autonomous Analysis Suite
             </p>
           )}
         </div>

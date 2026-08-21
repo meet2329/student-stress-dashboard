@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   X, 
@@ -13,31 +13,141 @@ import {
   ShieldCheck, 
   ArrowRight,
   HelpCircle,
-  Table
+  Table,
+  Cpu,
+  Activity,
+  GitBranch,
+  BrainCircuit
 } from 'lucide-react'
 import { useFilter } from '../../context/FilterContext'
+import { useAIEda } from '../../context/AIEdaContext'
 import metadata from '../../data/metadata.json'
 import dataDictionary from '../../data/dataDictionary.json'
 
 export default function MethodologyModal() {
   const { methodologyOpen, setMethodologyOpen } = useFilter()
+  const { fileName, datasetProfile, dataQuality, preprocessingReport } = useAIEda()
   const [activeTab, setActiveTab] = useState('pipeline')
   const [searchTerm, setSearchTerm] = useState('')
   const [copied, setCopied] = useState(false)
 
+  const domainName = datasetProfile?.inferredDomain?.domain || 'General'
+
+  // Dynamically build active data dictionary
+  const effectiveDictionary = useMemo(() => {
+    if (datasetProfile?.columnProfiles && datasetProfile.columnProfiles.length > 0) {
+      return datasetProfile.columnProfiles.map((col, idx) => {
+        let cat = 'Feature'
+        if (col.isIdLike) cat = 'Identifier'
+        else if (col.inferredType === 'numerical') cat = 'Numerical Metric'
+        else if (col.inferredType === 'categorical') cat = 'Categorical Factor'
+        else if (col.inferredType === 'boolean') cat = 'Binary Flag'
+
+        let rangeText = '—'
+        if (col.inferredType === 'numerical' && col.min !== undefined && col.max !== undefined) {
+          rangeText = `${col.min} – ${col.max} (μ=${col.mean ? col.mean.toFixed(1) : '-'})`
+        } else if (col.topCategories && col.topCategories.length > 0) {
+          rangeText = col.topCategories.slice(0, 3).map(c => c.value).join(', ') + (col.uniqueCount > 3 ? ` (+${col.uniqueCount - 3} more)` : '')
+        } else if (col.uniqueCount) {
+          rangeText = `${col.uniqueCount} distinct values`
+        }
+
+        const missingPct = datasetProfile.totalRows ? ((col.nullCount / datasetProfile.totalRows) * 100).toFixed(1) : '0'
+
+        return {
+          id: idx + 1,
+          name: col.name,
+          category: cat,
+          type: col.inferredType === 'numerical' ? 'Numerical (Continuous)' : (col.inferredType === 'boolean' ? 'Boolean (0/1)' : 'Categorical (Nominal)'),
+          range: rangeText,
+          description: `Feature '${col.name.replace(/_/g, ' ')}' with ${col.nullCount || 0} missing values (${missingPct}% null) across ${datasetProfile.totalRows?.toLocaleString() || 0} observations.`
+        }
+      })
+    }
+    return dataDictionary
+  }, [datasetProfile])
+
+  // Potential primary target
+  const targetCol = datasetProfile?.potentialTargets?.[0]?.column || 
+    datasetProfile?.columnProfiles?.find(c => c.inferredType === 'numerical')?.name || 
+    'Target Metric'
+
+  // Dynamic Primary Research Objective
+  const dynamicResearchQuestion = useMemo(() => {
+    if (fileName && datasetProfile) {
+      return `“What multi-factor drivers and statistical relationships most strongly influence '${targetCol.replace(/_/g, ' ')}' and cohort patterns across the ${domainName} dataset?”`
+    }
+    return `“${metadata.primaryResearchQuestion}”`
+  }, [fileName, datasetProfile, targetCol, domainName])
+
+  // Dynamic Pipeline Stages
+  const dynamicPipelineStages = useMemo(() => {
+    const rowCount = datasetProfile?.totalRows?.toLocaleString() || '3,000'
+    const colCount = datasetProfile?.totalCols || effectiveDictionary.length
+    const numCols = datasetProfile?.columnProfiles?.filter(c => c.inferredType === 'numerical') || []
+    const catCols = datasetProfile?.columnProfiles?.filter(c => c.inferredType === 'categorical' || c.inferredType === 'boolean') || []
+
+    return [
+      {
+        step: 1,
+        title: 'Data Ingestion & Schema Parsing',
+        description: `Automated CSV parsing and validation across ${rowCount} records and ${colCount} data attributes.`
+      },
+      {
+        step: 2,
+        title: 'Statistical Profiling & Typing',
+        description: `Deep heuristic profiling identifying ${numCols.length} numerical metrics and ${catCols.length} categorical factors.`
+      },
+      {
+        step: 3,
+        title: 'Data Hygiene & Quality Audit',
+        description: `Completeness scoring (${dataQuality?.completenessScore ?? 100}%), null pattern analysis, and duplicate detection.`
+      },
+      {
+        step: 4,
+        title: 'Domain Inference & Target Selection',
+        description: `Inferred domain: ${domainName}. Evaluated primary outcome variable '${targetCol.replace(/_/g, ' ')}' for target modeling.`
+      },
+      {
+        step: 5,
+        title: 'Univariate Distribution Engine',
+        description: 'Automated skewness detection, parametric central tendency metrics (μ, σ), and bin-optimized histograms.'
+      },
+      {
+        step: 6,
+        title: 'Bivariate Correlation & Regression',
+        description: 'Pearson correlation coefficients (r), coefficient of determination (R²), and scatter trendlines.'
+      },
+      {
+        step: 7,
+        title: 'Multivariate Interaction Suite',
+        description: `${numCols.length}×${numCols.length} Pearson co-variance heatmap, ranked risk drivers, and multi-factor radar profiling.`
+      },
+      {
+        step: 8,
+        title: 'Hypothesis Testing & Statistical Inference',
+        description: 'Pearson correlation tests, One-Way ANOVA F-tests, and Non-parametric Chi-Square tests of independence.'
+      }
+    ]
+  }, [datasetProfile, dataQuality, domainName, targetCol, effectiveDictionary])
+
   if (!methodologyOpen) return null
 
-  const filteredDictionary = dataDictionary.filter(item => 
+  const filteredDictionary = effectiveDictionary.filter(item => 
     item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.description.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   const handleCopyJson = () => {
-    navigator.clipboard.writeText(JSON.stringify(metadata, null, 2))
+    const exportData = datasetProfile || metadata
+    navigator.clipboard.writeText(JSON.stringify(exportData, null, 2))
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
+
+  const numColsList = datasetProfile?.columnProfiles?.filter(c => c.inferredType === 'numerical').map(c => c.name.replace(/_/g, ' ')) || []
+  const catColsList = datasetProfile?.columnProfiles?.filter(c => c.inferredType === 'categorical').map(c => c.name.replace(/_/g, ' ')) || []
 
   return (
     <AnimatePresence>
@@ -70,34 +180,37 @@ export default function MethodologyModal() {
                   Data Science Methodology & Dataset Architecture
                 </h2>
                 <p className="text-xs text-slate-400 font-medium">
-                  3,000 Records • 19 Variables • Zero Nulls • Complete Statistical Pipeline
+                  {fileName && datasetProfile
+                    ? `${fileName} • ${datasetProfile.totalRows?.toLocaleString()} Records • ${datasetProfile.totalCols} Variables • Domain: ${domainName}`
+                    : 'Autonomous Statistical Pipeline • 100% Dynamic Inference Engine'
+                  }
                 </p>
               </div>
             </div>
             <button
               onClick={() => setMethodologyOpen(false)}
-              className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
           {/* Tab Navigation */}
-          <div className="flex items-center gap-2 px-6 border-b border-slate-200 bg-slate-50/80 text-xs font-semibold">
+          <div className="flex items-center gap-2 px-6 border-b border-slate-200 bg-slate-50/80 text-xs font-semibold overflow-x-auto">
             <button
               onClick={() => setActiveTab('pipeline')}
-              className={`py-3 px-3 border-b-2 flex items-center gap-1.5 transition-all ${
+              className={`py-3 px-3 border-b-2 flex items-center gap-1.5 transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === 'pipeline'
                   ? 'border-blue-600 text-blue-600 font-bold'
                   : 'border-transparent text-slate-500 hover:text-slate-900'
               }`}
             >
               <Layers className="w-4 h-4" />
-              <span>11-Step Analytics Pipeline</span>
+              <span>8-Step Analytics Pipeline</span>
             </button>
             <button
               onClick={() => setActiveTab('quality')}
-              className={`py-3 px-3 border-b-2 flex items-center gap-1.5 transition-all ${
+              className={`py-3 px-3 border-b-2 flex items-center gap-1.5 transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === 'quality'
                   ? 'border-blue-600 text-blue-600 font-bold'
                   : 'border-transparent text-slate-500 hover:text-slate-900'
@@ -108,14 +221,14 @@ export default function MethodologyModal() {
             </button>
             <button
               onClick={() => setActiveTab('dictionary')}
-              className={`py-3 px-3 border-b-2 flex items-center gap-1.5 transition-all ${
+              className={`py-3 px-3 border-b-2 flex items-center gap-1.5 transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === 'dictionary'
                   ? 'border-blue-600 text-blue-600 font-bold'
                   : 'border-transparent text-slate-500 hover:text-slate-900'
               }`}
             >
               <Table className="w-4 h-4" />
-              <span>19-Variable Dictionary</span>
+              <span>Data Dictionary ({effectiveDictionary.length} Variables)</span>
             </button>
           </div>
 
@@ -131,13 +244,13 @@ export default function MethodologyModal() {
                       Primary Research Objective
                     </h3>
                     <p className="text-sm font-semibold text-slate-800 mt-0.5">
-                      “{metadata.primaryResearchQuestion}”
+                      {dynamicResearchQuestion}
                     </p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
-                  {metadata.pipelineStages.map((stage) => (
+                  {dynamicPipelineStages.map((stage) => (
                     <div
                       key={stage.step}
                       className="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 hover:border-slate-300 transition-all flex items-start gap-3"
@@ -164,30 +277,32 @@ export default function MethodologyModal() {
                   <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-center">
                     <p className="text-xs font-semibold text-emerald-800">Completeness</p>
                     <p className="text-2xl font-extrabold text-emerald-700 mt-1">
-                      {metadata.dataQuality.completeness}%
+                      {dataQuality?.completenessScore ?? metadata.dataQuality.completeness}%
                     </p>
-                    <p className="text-[11px] text-emerald-600 mt-0.5">0 Missing Values</p>
+                    <p className="text-[11px] text-emerald-600 mt-0.5">
+                      {datasetProfile ? `${datasetProfile.columnProfiles.reduce((acc, c) => acc + (c.nullCount || 0), 0)} Missing Values` : '0 Missing Values'}
+                    </p>
                   </div>
                   <div className="p-4 rounded-xl bg-blue-50 border border-blue-200 text-center">
                     <p className="text-xs font-semibold text-blue-800">Uniqueness</p>
                     <p className="text-2xl font-extrabold text-blue-700 mt-1">
-                      {metadata.dataQuality.uniqueness}%
+                      {dataQuality?.uniquenessScore ?? metadata.dataQuality.uniqueness}%
                     </p>
                     <p className="text-[11px] text-blue-600 mt-0.5">0 Duplicate Rows</p>
                   </div>
                   <div className="p-4 rounded-xl bg-indigo-50 border border-indigo-200 text-center">
                     <p className="text-xs font-semibold text-indigo-800">Consistency</p>
                     <p className="text-2xl font-extrabold text-indigo-700 mt-1">
-                      {metadata.dataQuality.consistency}%
+                      {dataQuality?.validityScore ?? metadata.dataQuality.consistency}%
                     </p>
                     <p className="text-[11px] text-indigo-600 mt-0.5">Type Validated</p>
                   </div>
                   <div className="p-4 rounded-xl bg-teal-50 border border-teal-200 text-center">
                     <p className="text-xs font-semibold text-teal-800">Validity Score</p>
                     <p className="text-2xl font-extrabold text-teal-700 mt-1">
-                      {metadata.dataQuality.validity}%
+                      {dataQuality?.overallScore ?? metadata.dataQuality.validity}%
                     </p>
-                    <p className="text-[11px] text-teal-600 mt-0.5">Domain Verified</p>
+                    <p className="text-[11px] text-teal-600 mt-0.5">Domain: {domainName}</p>
                   </div>
                 </div>
 
@@ -198,15 +313,21 @@ export default function MethodologyModal() {
                   <ul className="space-y-2 text-xs text-slate-700">
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                      <span><strong>Outlier Treatment:</strong> Numerical continuous distributions (Study Hours, Screen Time, Sleep Hours) were inspected via Tukey boxplot IQR bounds and Winsorized at the 1st and 99th percentiles to preserve sample size while mitigating extreme measurement noise.</span>
+                      <span>
+                        <strong>Outlier Treatment:</strong> Continuous numerical distributions ({numColsList.slice(0, 4).join(', ') || 'numerical metrics'}) were inspected via Tukey boxplot IQR bounds and checked for extreme measurement variance.
+                      </span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                      <span><strong>Categorical Standardisation:</strong> Standardized text cases and encoded Nominal features (Gender, University Type, Tuition) and Ordinal factors (Family Income, Stress Severity).</span>
+                      <span>
+                        <strong>Categorical Standardization:</strong> Nominal and discrete attributes ({catColsList.slice(0, 4).join(', ') || 'categorical factors'}) standardized for uniform text casing, category grouping, and cross-tabulation.
+                      </span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                      <span><strong>Scale Normalization:</strong> Raw Likert responses (1.0–5.0) and Composite Stress Score (0–100 scale) were verified for parametric assumption compliance.</span>
+                      <span>
+                        <strong>Scale Normalization:</strong> Feature distributions verified for parametric hypothesis testing compliance (degrees of freedom df = N - 2).
+                      </span>
                     </li>
                   </ul>
                 </div>
@@ -219,7 +340,7 @@ export default function MethodologyModal() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={handleCopyJson}
-                      className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-teal-300 flex items-center gap-1.5 transition-colors"
+                      className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-teal-300 flex items-center gap-1.5 transition-colors cursor-pointer"
                     >
                       <Copy className="w-3.5 h-3.5" />
                       <span>{copied ? 'Copied!' : 'Copy JSON'}</span>
@@ -239,7 +360,7 @@ export default function MethodologyModal() {
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Search 19 variables by name, category, or description..."
+                    placeholder={`Search ${effectiveDictionary.length} variables by name, category, or description...`}
                     className="w-full pl-9 pr-4 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-medium"
                   />
                 </div>
@@ -287,10 +408,12 @@ export default function MethodologyModal() {
 
           {/* Modal Footer */}
           <div className="px-6 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between text-xs text-slate-500">
-            <span className="font-mono">Dataset Scope: 2023–2024 University Cohort</span>
+            <span className="font-mono">
+              Dataset Scope: {fileName ? `${fileName} (${datasetProfile?.totalRows?.toLocaleString() || 0} Observations • ${domainName})` : 'Autonomous Exploratory Data Analysis Architecture'}
+            </span>
             <button
               onClick={() => setMethodologyOpen(false)}
-              className="px-4 py-1.5 rounded-lg bg-slate-900 text-white font-semibold hover:bg-slate-800 transition-colors"
+              className="px-4 py-1.5 rounded-lg bg-slate-900 text-white font-semibold hover:bg-slate-800 transition-colors cursor-pointer"
             >
               Close
             </button>
@@ -300,3 +423,4 @@ export default function MethodologyModal() {
     </AnimatePresence>
   )
 }
+

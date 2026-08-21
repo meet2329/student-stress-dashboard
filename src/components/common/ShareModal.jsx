@@ -36,7 +36,7 @@ export default function ShareModal({ isOpen, onClose }) {
   const location = useLocation()
   const { currentUser } = useAuth()
   const { exportSnapshot: exportFilterSnapshot } = useFilter()
-  const { exportAIEdaSnapshot, pipelineStage } = useAIEda()
+  const { exportAIEdaSnapshot, pipelineStage, fileName, datasetProfile, rawDataset } = useAIEda()
 
   const [activeTab, setActiveTab] = useState('create') // 'create' | 'manage'
   const [title, setTitle] = useState('')
@@ -52,9 +52,7 @@ export default function ShareModal({ isOpen, onClose }) {
   const [isLoadingLinks, setIsLoadingLinks] = useState(false)
   const [errorMessage, setErrorMessage] = useState(null)
 
-  const isAiEdaMode = location.pathname.startsWith('/ai-eda')
-
-  // Auto-fill default title based on current screen
+  // Auto-fill default title based on current screen and active dataset
   useEffect(() => {
     if (isOpen) {
       setGeneratedResult(null)
@@ -62,17 +60,20 @@ export default function ShareModal({ isOpen, onClose }) {
       setShowQrCode(false)
       setErrorMessage(null)
 
-      if (isAiEdaMode) {
-        setTitle('AI EDA Automated Analysis Snapshot')
-        setDescription('Interactive exploratory data analysis and AI visualization plan.')
+      if (fileName) {
+        setTitle(`${fileName} Analytics & Insights`)
+        setDescription(`Interactive analysis, statistical hypothesis tests, and AI recommendations for ${fileName} (${datasetProfile?.totalRows?.toLocaleString() || ''} rows).`)
+      } else if (datasetProfile?.inferredDomain?.domain) {
+        setTitle(`${datasetProfile.inferredDomain.domain} Analytics Dashboard`)
+        setDescription(`Interactive ${datasetProfile.inferredDomain.domain.toLowerCase()} exploratory data analysis and AI visualization suite.`)
       } else {
-        setTitle('Student Stress Analytics Dashboard')
-        setDescription('Interactive student stress univariate, bivariate, and multivariate analysis.')
+        setTitle('Interactive Data Science & AI Dashboard')
+        setDescription('Interactive exploratory data analysis, statistical tests, and AI insights.')
       }
 
       loadLinks()
     }
-  }, [isOpen, location.pathname, isAiEdaMode])
+  }, [isOpen, location.pathname, fileName, datasetProfile])
 
   const loadLinks = async () => {
     setIsLoadingLinks(true)
@@ -94,24 +95,20 @@ export default function ShareModal({ isOpen, onClose }) {
     setErrorMessage(null)
 
     try {
-      let snapshotState = {}
-      let snapshotType = 'student_stress'
+      // 1. Capture full active AI EDA dataset, profiling, AI plan, insights & charts
+      const aiEdaState = exportAIEdaSnapshot()
+      const filterState = exportFilterSnapshot ? exportFilterSnapshot() : {}
 
-      if (isAiEdaMode) {
-        snapshotType = 'ai_eda'
-        snapshotState = exportAIEdaSnapshot()
-      } else {
-        snapshotType = 'student_stress'
-        snapshotState = exportFilterSnapshot()
+      const snapshotState = {
+        ...aiEdaState,
+        filterState,
+        initialPath: location.pathname
       }
 
-      // Add active pathname so viewer starts on the exact subpage
-      snapshotState.initialPath = location.pathname
-
       const result = await createShareLink({
-        title,
+        title: title.trim() || (fileName ? `${fileName} Analytics` : 'Shared Dashboard'),
         description,
-        type: snapshotType,
+        type: 'ai_eda',
         durationId: selectedDuration,
         pin: enablePin ? pin : '',
         state: snapshotState,

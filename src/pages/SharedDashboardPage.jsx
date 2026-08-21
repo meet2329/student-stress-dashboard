@@ -55,9 +55,10 @@ const STRESS_TABS = [
 const AI_EDA_TABS = [
   { id: 'ai-overview', label: 'Dataset Overview', icon: BarChart3 },
   { id: 'quality', label: 'Data Quality', icon: ShieldCheck },
-  { id: 'univariate', label: 'Univariate', icon: Layers },
-  { id: 'bivariate', label: 'Bivariate', icon: TrendingUp },
-  { id: 'multivariate', label: 'Multivariate', icon: BrainCircuit },
+  { id: 'univariate', label: 'Univariate Analysis', icon: Layers },
+  { id: 'bivariate', label: 'Bivariate Analysis', icon: TrendingUp },
+  { id: 'multivariate', label: 'Multivariate Analysis', icon: BrainCircuit },
+  { id: 'statistical-analysis', label: 'Statistical Tests', icon: Cpu },
   { id: 'insights', label: 'AI Insights', icon: Sparkles },
   { id: 'recommendations', label: 'Recommendations', icon: CheckCircle2 }
 ]
@@ -81,7 +82,7 @@ export default function SharedDashboardPage() {
   const [pinError, setPinError] = useState(false)
 
   // Active Tab State
-  const [activeTab, setActiveTab] = useState('overview')
+  const [activeTab, setActiveTab] = useState('ai-overview')
   const [timeRemaining, setTimeRemaining] = useState({ text: '', isExpired: false, isUrgent: false })
   const [copied, setCopied] = useState(false)
 
@@ -143,12 +144,32 @@ export default function SharedDashboardPage() {
   const hydrateWorkspace = (data) => {
     if (!data || !data.state) return
 
-    if (data.type === 'ai_eda') {
-      loadAIEdaSnapshot(data.state)
-      setActiveTab('ai-overview')
+    // 1. Hydrate active AI EDA dataset, profiler, insights, recommendations, and charts
+    loadAIEdaSnapshot(data.state)
+
+    // 2. Hydrate filter state if present
+    if (data.state.filterState) {
+      loadSnapshot(data.state.filterState)
+    }
+
+    // 3. Intelligently set active tab based on author's initial subpage
+    const path = data.state.initialPath || ''
+    if (path.includes('statistical-analysis')) {
+      setActiveTab('statistical-analysis')
+    } else if (path.includes('multivariate')) {
+      setActiveTab('multivariate')
+    } else if (path.includes('insights')) {
+      setActiveTab('insights')
+    } else if (path.includes('recommendations')) {
+      setActiveTab('recommendations')
+    } else if (path.includes('bivariate')) {
+      setActiveTab('bivariate')
+    } else if (path.includes('univariate')) {
+      setActiveTab('univariate')
+    } else if (path.includes('quality')) {
+      setActiveTab('quality')
     } else {
-      loadSnapshot(data.state)
-      setActiveTab('overview')
+      setActiveTab('ai-overview')
     }
   }
 
@@ -459,26 +480,19 @@ export default function SharedDashboardPage() {
 
         {/* Render Tab Content based on Type */}
         <div className="transition-all">
-          {dashboardData.type === 'ai_eda' ? (
-            <div>
-              {activeTab === 'ai-overview' && <AIEdaOverviewPage />}
-              {activeTab === 'quality' && <DataQualityPage />}
-              {activeTab === 'univariate' && <DynamicUnivariatePage />}
-              {activeTab === 'bivariate' && <DynamicBivariatePage />}
-              {activeTab === 'multivariate' && <DynamicMultivariatePage />}
-              {activeTab === 'insights' && <AIInsightsPage />}
-              {activeTab === 'recommendations' && <RecommendationsPage />}
-            </div>
-          ) : (
-            <div>
-              {activeTab === 'overview' && <OverviewPage />}
-              {activeTab === 'profile' && <StudentProfilePage />}
-              {activeTab === 'academic-lifestyle' && <AcademicLifestylePage />}
-              {activeTab === 'multivariate' && <MultivariatePage />}
-              {activeTab === 'statistical-analysis' && <StatisticalAnalysisPage />}
-              {activeTab === 'insights' && <InsightsRecommendationsPage />}
-            </div>
-          )}
+          <div>
+            {activeTab === 'ai-overview' && <AIEdaOverviewPage />}
+            {activeTab === 'quality' && <DataQualityPage />}
+            {activeTab === 'univariate' && <DynamicUnivariatePage />}
+            {activeTab === 'bivariate' && <DynamicBivariatePage />}
+            {activeTab === 'multivariate' && <DynamicMultivariatePage />}
+            {activeTab === 'statistical-analysis' && <StatisticalAnalysisPage />}
+            {activeTab === 'insights' && <AIInsightsPage />}
+            {activeTab === 'recommendations' && <RecommendationsPage />}
+            {activeTab === 'overview' && <AIEdaOverviewPage />}
+            {activeTab === 'profile' && <DynamicUnivariatePage />}
+            {activeTab === 'academic-lifestyle' && <DynamicBivariatePage />}
+          </div>
         </div>
       </main>
 

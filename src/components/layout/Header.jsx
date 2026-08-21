@@ -17,61 +17,41 @@ import {
   Share2
 } from 'lucide-react'
 import { useFilter } from '../../context/FilterContext'
+import { useAIEda, STAGES } from '../../context/AIEdaContext'
 import { useAuth } from '../../context/AuthContext'
 
 const ROUTE_TITLES = {
   '/': {
-    title: 'Student Stress Overview',
-    subtitle: 'A high-level view of stress patterns among university students'
-  },
-  '/profile': {
-    title: 'Student & Stress Profile',
-    subtitle: 'Univariate statistical distributions across demographics, academics, and lifestyle'
-  },
-  '/academic-lifestyle': {
-    title: 'Academic & Lifestyle Factors',
-    subtitle: 'Bivariate correlation analysis, scatter regressions, and cross-tabulations'
-  },
-  '/multivariate': {
-    title: 'Multivariate Stress Analysis',
-    subtitle: 'Exploring complex multi-factor interactions and 12×12 correlation matrices'
-  },
-  '/statistical-analysis': {
-    title: 'Statistical Validation',
-    subtitle: 'Hypothesis testing, Pearson correlations, Chi-Square tests, and One-Way ANOVA'
-  },
-  '/insights': {
-    title: 'Insights & Recommendations',
-    subtitle: 'Turning analytical findings into actionable institutional & lifestyle conclusions'
-  },
-  // AI Automated EDA Routes
-  '/ai-eda': {
-    title: 'AI EDA Overview',
-    subtitle: 'AI-powered exploratory data analysis — upload any CSV for instant analytics'
+    title: 'Autonomous EDA Overview',
+    subtitle: 'Upload any CSV dataset to synthesize instant statistical diagnostics & visualizations'
   },
   '/ai-eda/quality': {
-    title: 'Data Quality Analysis',
-    subtitle: 'Validate dataset integrity, detect issues, and review preprocessing decisions'
+    title: 'Data Quality & Hygiene Audit',
+    subtitle: 'Validate dataset integrity, detect missing values, and review preprocessing transformations'
   },
   '/ai-eda/univariate': {
-    title: 'Dynamic Univariate Analysis',
-    subtitle: 'AI-selected single-variable distributions and frequency analysis'
+    title: 'Univariate Feature Distributions',
+    subtitle: 'AI-selected single-variable distributions, skewness metrics, and frequency histograms'
   },
   '/ai-eda/bivariate': {
-    title: 'Dynamic Bivariate Analysis',
-    subtitle: 'AI-selected two-variable relationships, correlations, and group comparisons'
+    title: 'Bivariate Correlation & Regression',
+    subtitle: 'Pairwise feature relationships, scatter plots, trendlines, and group comparisons'
   },
   '/ai-eda/multivariate': {
-    title: 'Dynamic Multivariate Analysis',
-    subtitle: 'AI-selected multi-dimensional correlation matrices and interaction patterns'
+    title: 'Multivariate Interaction Suite',
+    subtitle: 'Multi-dimensional correlation heatmaps, driver rankings, and cluster radar profiles'
+  },
+  '/ai-eda/statistical-analysis': {
+    title: 'Statistical Hypothesis Testing',
+    subtitle: 'Pearson correlations, One-Way ANOVA, and Chi-Square tests computed dynamically from your data'
   },
   '/ai-eda/insights': {
-    title: 'AI-Generated Insights',
-    subtitle: 'Evidence-based observations and statistical findings from your data'
+    title: 'AI Findings & Empirical Insights',
+    subtitle: 'Evidence-based risk multipliers, protective buffers, and cohort trends'
   },
   '/ai-eda/recommendations': {
-    title: 'Recommendations',
-    subtitle: 'Actionable recommendations derived from data analysis findings'
+    title: 'Actionable Domain Recommendations',
+    subtitle: 'Targeted action plans and continuous optimization roadmaps for individuals and institutions'
   }
 }
 
@@ -79,29 +59,34 @@ export default function Header() {
   const location = useLocation()
   const navigate = useNavigate()
   const { 
-    selectedGender, 
-    setSelectedGender, 
-    selectedUniversity, 
-    setSelectedUniversity, 
-    selectedStressLevel, 
-    setSelectedStressLevel,
-    isFiltered, 
-    resetFilters,
     setMethodologyOpen,
-    setIngestionStudioOpen,
     setNvidiaModalOpen,
     setShareModalOpen,
     nvidiaApiKey,
-    aiAnalysisResult,
-    customDataset
+    aiAnalysisResult
   } = useFilter()
 
+  const { fileName, datasetProfile, pipelineStage } = useAIEda()
   const { currentUser, logoutUser } = useAuth()
 
-  const currentRoute = ROUTE_TITLES[location.pathname] || {
-    title: 'Student Stress Analytics',
-    subtitle: 'Data Science & AI University Project'
+  // Compute dynamic title & subtitle
+  let pageTitle = ROUTE_TITLES[location.pathname]?.title || 'AI-Powered EDA'
+  let pageSubtitle = ROUTE_TITLES[location.pathname]?.subtitle || 'Autonomous Exploratory Data Analysis & AI Studio'
+
+  if (location.pathname === '/' || location.pathname === '/ai-eda') {
+    if (fileName && datasetProfile) {
+      pageTitle = `${fileName.replace(/\.[^/.]+$/, '')} Overview`
+      pageSubtitle = `${datasetProfile.totalRows.toLocaleString()} observations • ${datasetProfile.totalCols} variables • Detected Domain: ${datasetProfile.inferredDomain?.domain || 'General'}`
+    } else {
+      pageTitle = 'Autonomous EDA Overview'
+      pageSubtitle = 'Upload any CSV dataset to synthesize instant statistical diagnostics & visualizations'
+    }
   }
+
+  // Compute dynamic pipeline badge count
+  const pipelineCountText = datasetProfile?.totalRows 
+    ? (datasetProfile.totalRows >= 1000 ? `${(datasetProfile.totalRows / 1000).toFixed(1)}k` : `${datasetProfile.totalRows}`)
+    : (pipelineStage === STAGES.READY ? 'Ready' : '0')
 
   return (
     <header className="sticky top-0 z-20 bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-4 lg:px-8 py-3.5 transition-all">
@@ -109,42 +94,26 @@ export default function Header() {
         {/* Left: Page Title & Breadcrumb */}
         <div className="pl-10 md:pl-0">
           <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-0.5">
-            <span className="font-medium hover:text-slate-800 transition-colors">Analytics</span>
+            <span className="font-medium hover:text-slate-800 transition-colors">Automated EDA</span>
             <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-            <span className="font-semibold text-blue-600 truncate">{currentRoute.title}</span>
+            <span className="font-semibold text-blue-600 truncate">{pageTitle}</span>
           </div>
           <h1 className="text-xl lg:text-2xl font-bold text-slate-900 tracking-tight leading-tight">
-            {currentRoute.title}
+            {pageTitle}
           </h1>
           <p className="text-xs text-slate-500 font-medium line-clamp-1">
-            {currentRoute.subtitle}
+            {pageSubtitle}
           </p>
         </div>
 
-        {/* Right: Global AI Controls, Dataset Ingestion & Auth */}
+        {/* Right: Global AI Controls, Pipeline & Auth */}
         <div className="flex flex-wrap items-center gap-2 pt-1 lg:pt-0">
-
-          {/* AI Dataset Ingestion Studio Button (Main Flow) */}
-          <button
-            onClick={() => setIngestionStudioOpen(true)}
-            className={`
-              flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-md transition-all border cursor-pointer
-              ${customDataset 
-                ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white border-emerald-500 shadow-emerald-500/20' 
-                : 'bg-gradient-to-r from-blue-600 via-indigo-600 to-teal-600 hover:opacity-95 text-white border-blue-500 shadow-blue-500/20'
-              }
-            `}
-            title="Upload CSV & Generate Custom AI Dashboard"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-yellow-300 animate-pulse" />
-            <span>{customDataset ? `Active: ${customDataset.rowCount} rows` : '✨ Ingest CSV & Generate Dashboard'}</span>
-          </button>
 
           {/* NVIDIA AI Settings Button */}
           <button
             onClick={() => setNvidiaModalOpen(true)}
             className={`
-              flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold shadow-xs transition-all border
+              flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold shadow-xs transition-all border cursor-pointer
               ${aiAnalysisResult
                 ? 'bg-slate-900 text-emerald-400 border-slate-800'
                 : 'bg-white hover:bg-slate-50 text-slate-700 border-slate-300'
@@ -156,15 +125,16 @@ export default function Header() {
             <span>{aiAnalysisResult ? 'Nemotron AI Active' : 'NVIDIA AI'}</span>
           </button>
 
-          {/* Methodology Trigger */}
+          {/* Pipeline Methodology Trigger */}
           <button
             onClick={() => setMethodologyOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-sm transition-all group"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-sm transition-all group cursor-pointer"
+            title="View Pipeline Architecture"
           >
             <Database className="w-3.5 h-3.5 text-teal-400 group-hover:rotate-12 transition-transform" />
             <span className="hidden sm:inline">Pipeline</span>
-            <span className="bg-slate-800 text-slate-300 text-[10px] px-1.5 py-0.5 rounded font-mono">
-              {customDataset ? customDataset.rowCount : '3k'}
+            <span className="bg-slate-800 text-teal-300 text-[10px] px-1.5 py-0.5 rounded font-mono font-bold">
+              {pipelineCountText}
             </span>
           </button>
 

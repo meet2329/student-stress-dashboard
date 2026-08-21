@@ -191,13 +191,15 @@ export async function createShareLink({
     }
   }
 
-  // 3. Generate clean short URL
+  // 3. Generate robust URL with embedded encoded state hash
   const origin = typeof window !== 'undefined' ? window.location.origin : ''
-  const shareUrl = `${origin}/share/${shareId}`
+  const encodedHash = encodePayloadToUrl(sharePayload)
+  const shareUrl = `${origin}/share/${shareId}#d=${encodedHash}`
 
   return {
     shareId,
     shareUrl,
+    shortShareUrl: `${origin}/share/${shareId}`,
     expiresAt,
     durationLabel: preset.label,
     payload: sharePayload,

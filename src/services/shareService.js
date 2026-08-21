@@ -18,10 +18,30 @@ import {
   serverTimestamp, 
   increment 
 } from 'firebase/firestore'
-import { db } from './firebase'
+import { db, auth, signInAnonymously } from './firebase'
 
 const COLLECTION_NAME = 'shared_dashboards'
 const LOCAL_STORAGE_KEY = 'student_stress_shared_dashboards'
+
+/**
+ * Ensures a valid Firebase Authentication session is active.
+ * If user is not signed in, logs in anonymously to ensure Firestore read/write permissions succeed in production.
+ */
+export async function ensureFirebaseAuth() {
+  if (auth && auth.currentUser) {
+    return auth.currentUser
+  }
+  if (auth) {
+    try {
+      const cred = await signInAnonymously(auth)
+      return cred.user
+    } catch (authErr) {
+      console.warn('Anonymous Firebase auth notice:', authErr.message)
+      return null
+    }
+  }
+  return null
+}
 
 // Helper: Generate a sleek short alphanumeric ID (e.g. dash_k8x9m2)
 export function generateShareId() {
@@ -138,7 +158,7 @@ export function decodePayloadFromUrl(encodedStr) {
 export async function createShareLink({
   title = 'Interactive Dashboard Snapshot',
   description = '',
-  type = 'student_stress',
+  type = 'ai_eda',
   durationId = '24h',
   pin = '',
   state = {},
@@ -149,13 +169,16 @@ export async function createShareLink({
   const preset = EXPIRATION_PRESETS.find(p => p.id === durationId) || EXPIRATION_PRESETS[2]
   const expiresAt = preset.durationMs ? now + preset.durationMs : null
 
+  // Ensure authentication for Firestore
+  const activeUser = await ensureFirebaseAuth()
+
   const cleanState = sanitizeStatePayload(state)
 
   const sharePayload = {
     id: shareId,
     title: title.trim() || 'Shared Dashboard',
     description: description.trim(),
-    type,
+    type: 'ai_eda',
     durationId,
     durationLabel: preset.label,
     createdAt: now,
@@ -165,15 +188,15 @@ export async function createShareLink({
     hasPin: Boolean(pin && pin.trim().length >= 4),
     pin: pin && pin.trim().length >= 4 ? pin.trim() : null,
     owner: {
-      uid: user?.uid || 'anonymous',
-      displayName: user?.displayName || user?.email?.split('@')[0] || 'Anonymous Analyst',
-      email: user?.email || null,
-      photoURL: user?.photoURL || null
+      uid: user?.uid || activeUser?.uid || 'anonymous',
+      displayName: user?.displayName || activeUser?.displayName || user?.email?.split('@')[0] || 'Analyst',
+      email: user?.email || activeUser?.email || null,
+      photoURL: user?.photoURL || activeUser?.photoURL || null
     },
     state: cleanState
   }
 
-  // 1. Always save to LocalStorage for instant creator management & local testing
+  // 1. Always save to LocalStorage for creator management
   saveLocalShare(sharePayload)
 
   // 2. Save to Cloud Firestore Database
@@ -191,15 +214,14 @@ export async function createShareLink({
     }
   }
 
-  // 3. Generate robust URL with embedded encoded state hash
+  // 3. Generate clean, short, professional URL (e.g. https://domain.com/share/dash_k8x9m2)
   const origin = typeof window !== 'undefined' ? window.location.origin : ''
-  const encodedHash = encodePayloadToUrl(sharePayload)
-  const shareUrl = `${origin}/share/${shareId}#d=${encodedHash}`
+  const shareUrl = `${origin}/share/${shareId}`
 
   return {
     shareId,
     shareUrl,
-    shortShareUrl: `${origin}/share/${shareId}`,
+    shortShareUrl: shareUrl,
     expiresAt,
     durationLabel: preset.label,
     payload: sharePayload,
@@ -221,7 +243,10 @@ export async function getSharedDashboard(shareId, hashPayload = '') {
 
   let record = null
 
-  // 1. First attempt: Firestore Database
+  // Ensure authenticated session before reading Firestore
+  await ensureFirebaseAuth()
+
+  // 1. First attempt: Cloud Firestore Database
   if (db) {
     try {
       const docRef = doc(db, COLLECTION_NAME, shareId)

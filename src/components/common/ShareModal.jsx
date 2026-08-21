@@ -235,12 +235,12 @@ export default function ShareModal({ isOpen, onClose }) {
                       <div className="flex items-center gap-2.5 text-slate-300">
                         <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                         <span>Source Workspace:</span>
-                        <strong className="text-white">
-                          {isAiEdaMode ? 'AI Automated EDA Workspace' : 'Student Stress Analytics'}
+                        <strong className="text-white truncate max-w-[220px]">
+                          {fileName ? `${fileName}` : (datasetProfile?.inferredDomain?.domain ? `${datasetProfile.inferredDomain.domain} Studio` : 'AI-Powered EDA')}
                         </strong>
                       </div>
-                      <span className="text-[11px] text-slate-400 font-mono">
-                        {isAiEdaMode ? (pipelineStage === 'ready' ? '✓ Data Processed' : 'Empty Pipeline') : 'Current Filters & Charts'}
+                      <span className="text-[11px] text-teal-300 font-mono">
+                        {pipelineStage === 'ready' ? (datasetProfile ? `✓ ${datasetProfile.totalRows?.toLocaleString()} rows` : '✓ Active') : 'Autonomous Pipeline'}
                       </span>
                     </div>
 
@@ -409,7 +409,7 @@ export default function ShareModal({ isOpen, onClose }) {
                           </div>
                         </div>
                       </div>
-                      {generatedResult.payload.hasPin && (
+                      {generatedResult?.payload?.hasPin && (
                         <div className="flex items-center gap-1 text-[11px] px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono">
                           <Lock className="w-3 h-3" /> PIN Protected
                         </div>
@@ -551,7 +551,9 @@ export default function ShareModal({ isOpen, onClose }) {
                             </div>
 
                             <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-400">
-                              <span>Created {new Date(item.createdAt).toLocaleDateString()}</span>
+                              <span>
+                                Created {item.createdAt ? (typeof item.createdAt === 'number' ? new Date(item.createdAt).toLocaleDateString() : (item.createdAt.toDate ? item.createdAt.toDate().toLocaleDateString() : 'Recently')) : 'Recently'}
+                              </span>
                               <span>•</span>
                               <span className="flex items-center gap-1">
                                 <Eye className="w-3 h-3 text-slate-400" /> {item.viewCount || 0} views

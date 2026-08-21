@@ -9,7 +9,8 @@ import {
   createUserWithEmailAndPassword, 
   signOut, 
   onAuthStateChanged,
-  updateProfile
+  updateProfile,
+  signInAnonymously
 } from "firebase/auth";
 import { 
   getFirestore, 
@@ -59,6 +60,7 @@ export {
   signInWithPopup, 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
+  signInAnonymously,
   signOut, 
   onAuthStateChanged,
   updateProfile,

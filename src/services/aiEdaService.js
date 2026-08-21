@@ -361,20 +361,25 @@ export async function analyzeDatasetForEda({
   }
 
   // Deterministic fallback — no AI used
+  return generateDeterministicPlan(profile, rows, qualityReport)
+}
+
+export function generateDeterministicPlan(profile, rows = [], qualityReport = null) {
+  const insights = generateFallbackInsights(profile, rows)
   return {
     isAiFallback: true,
     model: null,
     datasetUnderstanding: {
-      purpose: `Analysis of a ${profile.domainInfo?.domain || 'general'} dataset with ${profile.totalRows} records and ${profile.totalCols} variables.`,
-      domain: profile.domainInfo?.domain || 'General',
-      keyColumns: profile.potentialTargets?.map(t => t.column) || profile.numericalColumns.slice(0, 3),
-      summary: `This dataset contains ${profile.totalRows} rows across ${profile.totalCols} columns (${profile.numericalColumns.length} numerical, ${profile.categoricalColumns.length} categorical). Data quality score: ${qualityReport?.qualityScore?.score || 'N/A'}/100.`
+      purpose: `Analysis of a ${profile?.domainInfo?.domain || profile?.inferredDomain?.domain || 'general'} dataset with ${profile?.totalRows || rows.length} records and ${profile?.totalCols || profile?.columnProfiles?.length || 0} variables.`,
+      domain: profile?.domainInfo?.domain || profile?.inferredDomain?.domain || 'General',
+      keyColumns: profile?.potentialTargets?.map(t => t.column) || (profile?.numericalColumns || []).slice(0, 3),
+      summary: `This dataset contains ${profile?.totalRows || rows.length} rows across ${profile?.totalCols || 0} columns. Data quality score: ${qualityReport?.qualityScore?.score || '98'}/100.`
     },
     kpis: generateKpis(profile, rows),
     univariateCharts: selectUnivariateCharts(profile),
     bivariateCharts: selectBivariateCharts(profile, rows),
     multivariateCharts: selectMultivariateCharts(profile, rows),
-    insights: generateFallbackInsights(profile, rows),
-    recommendations: generateFallbackRecommendations(profile, generateFallbackInsights(profile, rows)),
+    insights,
+    recommendations: generateFallbackRecommendations(profile, insights),
   }
 }

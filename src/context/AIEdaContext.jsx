@@ -8,7 +8,7 @@ import { parseCSV } from '../utils/csvAnalyticsEngine'
 import { profileDataset } from '../utils/datasetProfiler'
 import { analyzeDataQuality } from '../utils/dataQualityAnalyzer'
 import { preprocessDataset } from '../utils/safePreprocessor'
-import { analyzeDatasetForEda, DEFAULT_NVIDIA_MODEL } from '../services/aiEdaService'
+import { analyzeDatasetForEda, generateDeterministicPlan, DEFAULT_NVIDIA_MODEL } from '../services/aiEdaService'
 
 const AIEdaContext = createContext(null)
 
@@ -189,7 +189,13 @@ export function AIEdaProvider({ children }) {
     const effectiveAnalysisData = snapshot.analysisData || (snapshot.rawDataset ? { headers: snapshot.rawDataset.headers || [], rows: snapshot.rawDataset.rows || [] } : null)
     setAnalysisData(effectiveAnalysisData)
 
-    if (snapshot.aiPlan !== undefined) setAiPlan(snapshot.aiPlan)
+    if (snapshot.aiPlan) {
+      setAiPlan(snapshot.aiPlan)
+    } else if (snapshot.datasetProfile && effectiveAnalysisData) {
+      const generatedPlan = generateDeterministicPlan(snapshot.datasetProfile, effectiveAnalysisData.rows || [], snapshot.dataQuality)
+      setAiPlan(generatedPlan)
+    }
+
     if (snapshot.isAiFallback !== undefined) setIsAiFallback(Boolean(snapshot.isAiFallback))
     setPipelineStage(STAGES.READY)
   }, [])

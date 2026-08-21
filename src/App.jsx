@@ -38,22 +38,23 @@ export default function App() {
 
               {/* Dashboard Master Layout */}
               <Route path="/" element={<DashboardLayout />}>
-                {/* Existing Student Stress Routes (unchanged) */}
-                <Route index element={<OverviewPage />} />
-                <Route path="profile" element={<StudentProfilePage />} />
-                <Route path="academic-lifestyle" element={<AcademicLifestylePage />} />
-                <Route path="multivariate" element={<MultivariatePage />} />
-                <Route path="statistical-analysis" element={<StatisticalAnalysisPage />} />
-                <Route path="insights" element={<InsightsRecommendationsPage />} />
-
-                {/* AI Automated EDA Routes (new) */}
-                <Route path="ai-eda" element={<AIEdaOverviewPage />} />
+                {/* AI Automated EDA Master Routes */}
+                <Route index element={<AIEdaOverviewPage />} />
+                <Route path="ai-eda" element={<Navigate to="/" replace />} />
                 <Route path="ai-eda/quality" element={<DataQualityPage />} />
                 <Route path="ai-eda/univariate" element={<DynamicUnivariatePage />} />
                 <Route path="ai-eda/bivariate" element={<DynamicBivariatePage />} />
                 <Route path="ai-eda/multivariate" element={<DynamicMultivariatePage />} />
+                <Route path="ai-eda/statistical-analysis" element={<StatisticalAnalysisPage />} />
                 <Route path="ai-eda/insights" element={<AIInsightsPage />} />
                 <Route path="ai-eda/recommendations" element={<RecommendationsPage />} />
+
+                {/* Legacy Route Redirects */}
+                <Route path="profile" element={<Navigate to="/ai-eda/univariate" replace />} />
+                <Route path="academic-lifestyle" element={<Navigate to="/ai-eda/bivariate" replace />} />
+                <Route path="multivariate" element={<Navigate to="/ai-eda/multivariate" replace />} />
+                <Route path="statistical-analysis" element={<Navigate to="/ai-eda/statistical-analysis" replace />} />
+                <Route path="insights" element={<Navigate to="/ai-eda/insights" replace />} />
 
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Route>

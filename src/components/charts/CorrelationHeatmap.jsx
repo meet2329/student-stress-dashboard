@@ -19,21 +19,29 @@ import {
 } from 'lucide-react'
 import correlationData from '../../data/correlationMatrix.json'
 
-export default function CorrelationHeatmap() {
-  const { variables, shortLabels, matrix } = correlationData
+export default function CorrelationHeatmap({ dynamicData = null }) {
+  const activeData = (dynamicData && dynamicData.variables && dynamicData.matrix) ? dynamicData : correlationData
+  const { variables = [], shortLabels = [], matrix = [] } = activeData
 
-  const [activeTab, setActiveTab] = useState('ranking') // 'ranking' | 'heatmap' | 'network'
-  const [selectedFocusVar, setSelectedFocusVar] = useState('Stress Score')
-  const [filterThreshold, setFilterThreshold] = useState(0) // 0 or 0.25
+  const defaultFocus = variables.find(v => /stress/i.test(v)) || variables[0] || 'Stress Score'
+  const [activeTab, setActiveTab] = useState('ranking') // 'ranking' | 'heatmap'
+  const [selectedFocusVar, setSelectedFocusVar] = useState(defaultFocus)
+  const [filterThreshold, setFilterThreshold] = useState(0)
   const [hoveredCell, setHoveredCell] = useState(null)
-  const [selectedPair, setSelectedPair] = useState({
-    var1: 'Anxiety Level',
-    var2: 'Stress Score',
-    val: 0.51
+  const [selectedPair, setSelectedPair] = useState(() => {
+    if (variables.length >= 2) {
+      return {
+        var1: variables[0],
+        var2: variables[1],
+        val: (matrix[0] && matrix[0][1] !== undefined) ? matrix[0][1] : 0.42
+      }
+    }
+    return { var1: 'Factor 1', var2: 'Factor 2', val: 0.42 }
   })
 
-  // Get index of focused variable
-  const focusIdx = variables.indexOf(selectedFocusVar) !== -1 ? variables.indexOf(selectedFocusVar) : 0
+  // Ensure selectedFocusVar is valid
+  const effectiveFocus = variables.includes(selectedFocusVar) ? selectedFocusVar : (variables[0] || '')
+  const focusIdx = variables.indexOf(effectiveFocus) !== -1 ? variables.indexOf(effectiveFocus) : 0
 
   // Ranked correlations for the focused variable
   const rankedCorrelations = variables.map((v, idx) => {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { 
   Activity, 
@@ -9,26 +9,127 @@ import {
   Sliders, 
   ArrowRight,
   TrendingUp,
-  FileCheck
+  FileCheck,
+  Database
 } from 'lucide-react'
 import StatisticalTestCard from '../components/common/StatisticalTestCard'
 import SectionHeader from '../components/common/SectionHeader'
-import statisticalData from '../data/statisticalTests.json'
-
-const PLAYGROUND_VARIABLES = [
-  { id: 'screen', name: 'Screen Time', r: 0.42, p: 0.001, t: 25.41, r2: 0.176, effect: 'Moderate-Large' },
-  { id: 'sleep', name: 'Sleep Hours', r: -0.38, p: 0.001, t: -22.56, r2: 0.144, effect: 'Moderate Protective' },
-  { id: 'anxiety', name: 'Anxiety Level', r: 0.51, p: 0.001, t: 32.84, r2: 0.260, effect: 'Large Predictor' },
-  { id: 'study', name: 'Study Hours', r: 0.28, p: 0.001, t: 15.92, r2: 0.078, effect: 'Small-Moderate' },
-  { id: 'exams', name: 'Exam Frequency', r: 0.36, p: 0.001, t: 21.14, r2: 0.130, effect: 'Moderate' },
-  { id: 'family', name: 'Family Support', r: -0.31, p: 0.001, t: -17.85, r2: 0.096, effect: 'Moderate Buffer' },
-]
+import { useAIEda, STAGES } from '../context/AIEdaContext'
+import { useNavigate } from 'react-router-dom'
+import {
+  computeDynamicPearsonTest,
+  computeDynamicAnovaTest,
+  computeDynamicChiSquareTest,
+  generatePlaygroundVariables
+} from '../utils/statisticalAnalysisEngine'
 
 export default function StatisticalAnalysisPage() {
-  const [selectedVar, setSelectedVar] = useState(PLAYGROUND_VARIABLES[0])
+  const { pipelineStage, analysisData, datasetProfile, fileName } = useAIEda()
+  const navigate = useNavigate()
+
+  // Find optimal candidate columns for hypothesis testing
+  const { targetCol, predictorCol, groupCol, cat1Col, cat2Col } = useMemo(() => {
+    if (!datasetProfile || !analysisData) {
+      return { targetCol: null, predictorCol: null, groupCol: null, cat1Col: null, cat2Col: null }
+    }
+
+    const numCols = datasetProfile.numericalColumns || []
+    const catCols = datasetProfile.categoricalColumns || []
+
+    // Look for target (e.g. stress, score, target, or first num col)
+    const target = datasetProfile.potentialTargets?.[0]?.column ||
+      numCols.find(c => /stress|score|target|gpa|anxiety|performance/i.test(c)) ||
+      numCols[numCols.length - 1] ||
+      numCols[0]
+
+    // Look for primary predictor (numerical)
+    const predictor = numCols.find(c => c !== target && /screen|sleep|anxiety|study|hour|exam|load/i.test(c)) ||
+      numCols.find(c => c !== target) ||
+      numCols[0]
+
+    // Categorical column for ANOVA
+    const group = catCols.find(c => /univ|institution|college|gender|grade|dept|tier|level/i.test(c)) ||
+      catCols[0] ||
+      'Cohort_Group'
+
+    // 2 Categorical columns for Chi-Square
+    const c1 = catCols.find(c => /stress_level|level|category|grade|status/i.test(c)) || catCols[0] || 'Category_1'
+    const c2 = catCols.find(c => c !== c1) || catCols[1] || 'Category_2'
+
+    return {
+      targetCol: target,
+      predictorCol: predictor,
+      groupCol: group,
+      cat1Col: c1,
+      cat2Col: c2
+    }
+  }, [datasetProfile, analysisData])
+
+  // Compute the 3 Master Tests
+  const masterTests = useMemo(() => {
+    if (!analysisData || !analysisData.rows || !targetCol) return null
+
+    const rows = analysisData.rows
+
+    const pearson = computeDynamicPearsonTest(rows, predictorCol, targetCol)
+    const anova = computeDynamicAnovaTest(rows, groupCol, targetCol)
+    const chiSquare = computeDynamicChiSquareTest(rows, cat1Col, cat2Col)
+
+    return { pearson, anova, chiSquare }
+  }, [analysisData, targetCol, predictorCol, groupCol, cat1Col, cat2Col])
+
+  // Compute Playground Variables
+  const playgroundVars = useMemo(() => {
+    if (!analysisData || !analysisData.rows || !datasetProfile || !targetCol) return []
+    return generatePlaygroundVariables(analysisData.rows, datasetProfile, targetCol)
+  }, [analysisData, datasetProfile, targetCol])
+
+  const [selectedVar, setSelectedVar] = useState(null)
+
+  useEffect(() => {
+    if (playgroundVars.length > 0 && (!selectedVar || !playgroundVars.some(v => v.id === selectedVar.id))) {
+      setSelectedVar(playgroundVars[0])
+    }
+  }, [playgroundVars, selectedVar])
+
+  // 1. Empty State
+  if (pipelineStage === STAGES.EMPTY) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
+        <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-xs">
+          <Database className="w-7 h-7" />
+        </div>
+        <div className="space-y-1">
+          <h3 className="text-base font-bold text-slate-800">No Dataset Active</h3>
+          <p className="text-xs text-slate-500 font-medium max-w-sm">
+            Upload a CSV dataset on the overview page to run formal hypothesis validation and parametric inference tests.
+          </p>
+        </div>
+        <button
+          onClick={() => navigate('/ai-eda')}
+          className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-bold hover:bg-blue-500 transition-all shadow-sm cursor-pointer"
+        >
+          <span>Go to Overview & Upload</span>
+          <ArrowRight className="w-3.5 h-3.5" />
+        </button>
+      </div>
+    )
+  }
+
+  // 2. Processing State
+  if (pipelineStage !== STAGES.READY || !masterTests) {
+    return (
+      <div className="py-24 text-center space-y-2">
+        <p className="text-sm text-slate-600 font-semibold">Computing statistical significance & hypothesis tests...</p>
+        <p className="text-xs text-slate-400">Evaluating Pearson correlation, One-Way ANOVA, and Chi-Square cross-tabs.</p>
+      </div>
+    )
+  }
+
+  const { pearson, anova, chiSquare } = masterTests
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-12">
       {/* 1. Formal Hypothesis Testing Framework Intro Card */}
       <div className="p-6 rounded-3xl bg-gradient-to-r from-slate-900 via-slate-800 to-blue-950 text-white border border-slate-700 shadow-md space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -41,7 +142,7 @@ export default function StatisticalAnalysisPage() {
               Statistical Significance & Hypothesis Testing
             </h2>
             <p className="text-xs text-slate-300 font-medium">
-              Confirming whether observed relationships represent genuine population dynamics or sampling artifacts.
+              Mathematical validation of population effects across N = {analysisData?.rows?.length?.toLocaleString() || 0} observations from {fileName || 'dataset.csv'}.
             </p>
           </div>
 
@@ -64,160 +165,166 @@ export default function StatisticalAnalysisPage() {
         <div className="grid grid-cols-1 gap-6">
           {/* 1. Pearson Correlation Card */}
           <StatisticalTestCard
-            testName={statisticalData.pearson.testName}
-            question={statisticalData.pearson.question}
+            testName={pearson.testName}
+            question={pearson.question}
             statisticLabel="Pearson r"
-            statisticValue={`r = +${statisticalData.pearson.r.toFixed(3)}`}
-            pValue={statisticalData.pearson.pValue}
-            alpha={statisticalData.pearson.alpha}
-            significant={statisticalData.pearson.significant}
-            effectSize={statisticalData.pearson.effectSize}
+            statisticValue={`r = ${pearson.r > 0 ? '+' : ''}${pearson.r.toFixed(3)}`}
+            pValue={pearson.pValue}
+            alpha={pearson.alpha}
+            significant={pearson.significant}
+            effectSize={pearson.effectSize}
             effectSizeLabel="R² Variance Explained"
-            df={statisticalData.pearson.df}
-            nullHypothesis={statisticalData.pearson.nullHypothesis}
-            altHypothesis={statisticalData.pearson.altHypothesis}
-            decisionRule={statisticalData.pearson.decisionRule}
-            interpretation={statisticalData.pearson.interpretation}
-            assumptions={statisticalData.pearson.assumptions}
+            df={pearson.df}
+            nullHypothesis={pearson.nullHypothesis}
+            altHypothesis={pearson.altHypothesis}
+            decisionRule={pearson.decisionRule}
+            interpretation={pearson.interpretation}
+            assumptions={pearson.assumptions}
           />
 
           {/* 2. Chi-Square Test Card */}
           <StatisticalTestCard
-            testName={statisticalData.chiSquare.testName}
-            question={statisticalData.chiSquare.question}
+            testName={chiSquare.testName}
+            question={chiSquare.question}
             statisticLabel="Chi-Square (χ²)"
-            statisticValue={`χ² = ${statisticalData.chiSquare.chiSquareStatistic.toFixed(3)}`}
-            pValue={statisticalData.chiSquare.pValue}
-            alpha={statisticalData.chiSquare.alpha}
-            significant={statisticalData.chiSquare.significant}
-            effectSize={statisticalData.chiSquare.effectSize}
+            statisticValue={`χ² = ${chiSquare.chiSquareStatistic.toFixed(3)}`}
+            pValue={chiSquare.pValue}
+            alpha={chiSquare.alpha}
+            significant={chiSquare.significant}
+            effectSize={chiSquare.effectSize}
             effectSizeLabel="Cramér's V Association"
-            df={statisticalData.chiSquare.df}
-            nullHypothesis={statisticalData.chiSquare.nullHypothesis}
-            altHypothesis={statisticalData.chiSquare.altHypothesis}
-            decisionRule={statisticalData.chiSquare.decisionRule}
-            interpretation={statisticalData.chiSquare.interpretation}
-            assumptions={statisticalData.chiSquare.assumptions}
+            df={chiSquare.df}
+            nullHypothesis={chiSquare.nullHypothesis}
+            altHypothesis={chiSquare.altHypothesis}
+            decisionRule={chiSquare.decisionRule}
+            interpretation={chiSquare.interpretation}
+            assumptions={chiSquare.assumptions}
           />
 
           {/* 3. One-Way ANOVA Card */}
           <StatisticalTestCard
-            testName={statisticalData.anova.testName}
-            question={statisticalData.anova.question}
+            testName={anova.testName}
+            question={anova.question}
             statisticLabel="F-Ratio"
-            statisticValue={`F = ${statisticalData.anova.fStatistic.toFixed(3)}`}
-            pValue={statisticalData.anova.pValue}
-            alpha={statisticalData.anova.alpha}
-            significant={statisticalData.anova.significant}
-            effectSize={statisticalData.anova.effectSize}
+            statisticValue={`F = ${anova.fStatistic.toFixed(3)}`}
+            pValue={anova.pValue}
+            alpha={anova.alpha}
+            significant={anova.significant}
+            effectSize={anova.effectSize}
             effectSizeLabel="Eta-Squared (η²)"
-            df={`${statisticalData.anova.dfBetween}, ${statisticalData.anova.dfWithin}`}
-            nullHypothesis={statisticalData.anova.nullHypothesis}
-            altHypothesis={statisticalData.anova.altHypothesis}
-            decisionRule={statisticalData.anova.decisionRule}
-            interpretation={statisticalData.anova.interpretation}
-            assumptions={statisticalData.anova.assumptions}
+            df={`${anova.dfBetween}, ${anova.dfWithin}`}
+            nullHypothesis={anova.nullHypothesis}
+            altHypothesis={anova.altHypothesis}
+            decisionRule={anova.decisionRule}
+            interpretation={anova.interpretation}
+            assumptions={anova.assumptions}
             extraDetails={
-              <div className="p-3 rounded-xl bg-slate-100/90 border border-slate-200 text-xs space-y-2">
-                <p className="font-bold text-slate-800 uppercase tracking-wider text-[11px]">
-                  Post-Hoc Tukey HSD Pairwise Comparisons:
-                </p>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                  {statisticalData.anova.postHocTukey.map((tuk, i) => (
-                    <div key={i} className="p-2 bg-white rounded-lg border border-slate-200 text-[11px]">
-                      <p className="font-semibold text-slate-900">{tuk.comparison}</p>
-                      <p className="text-slate-600 font-mono">Diff: {tuk.meanDiff}</p>
-                      <p className={`font-mono font-bold ${tuk.significant ? 'text-emerald-700' : 'text-slate-500'}`}>
-                        p = {tuk.pVal} ({tuk.significant ? 'Significant' : 'n.s.'})
-                      </p>
-                    </div>
-                  ))}
+              anova.postHocTukey && anova.postHocTukey.length > 0 ? (
+                <div className="p-3 rounded-xl bg-slate-100/90 border border-slate-200 text-xs space-y-2">
+                  <p className="font-bold text-slate-800 uppercase tracking-wider text-[11px]">
+                    Subgroup Pairwise Mean Comparison:
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    {anova.postHocTukey.map((tuk, i) => (
+                      <div key={i} className="p-2 bg-white rounded-lg border border-slate-200 text-[11px]">
+                        <p className="font-semibold text-slate-900">{tuk.comparison}</p>
+                        <p className="text-slate-600 font-mono">Diff: {tuk.meanDiff}</p>
+                        <p className={`font-mono font-bold ${tuk.significant ? 'text-emerald-700' : 'text-slate-500'}`}>
+                          p = {tuk.pVal} ({tuk.significant ? 'Significant' : 'n.s.'})
+                        </p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              ) : null
             }
           />
         </div>
       </div>
 
       {/* 3. Interactive Hypothesis Playground */}
-      <div className="p-6 rounded-3xl bg-white border border-slate-200/90 shadow-sm space-y-4">
-        <SectionHeader
-          title="Interactive Hypothesis Testing Playground"
-          subtitle="Select any factor to inspect its real-time bivariate correlation, t-statistic, and statistical decision"
-          badge="Live Calculator"
-        />
+      {playgroundVars.length > 0 && selectedVar && (
+        <div className="p-6 rounded-3xl bg-white border border-slate-200/90 shadow-sm space-y-4">
+          <SectionHeader
+            title="Interactive Hypothesis Testing Playground"
+            subtitle={`Select any factor in your dataset to inspect real-time bivariate correlation vs ${targetCol}`}
+            badge="Live Calculator"
+          />
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-          {/* Factor Selector */}
-          <div className="lg:col-span-5 space-y-2">
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-              Select Factor to Test vs. Stress Score (Y):
-            </p>
-            <div className="grid grid-cols-2 gap-2">
-              {PLAYGROUND_VARIABLES.map((v) => (
-                <button
-                  key={v.id}
-                  onClick={() => setSelectedVar(v)}
-                  className={`
-                    p-3 rounded-xl text-left text-xs font-bold border transition-all
-                    ${selectedVar.id === v.id 
-                      ? 'bg-blue-600 text-white border-blue-600 shadow-sm' 
-                      : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
-                    }
-                  `}
-                >
-                  <p>{v.name}</p>
-                  <p className={`text-[10px] mt-0.5 font-mono ${selectedVar.id === v.id ? 'text-blue-100' : 'text-slate-400'}`}>
-                    r = {v.r > 0 ? `+${v.r}` : v.r}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+            {/* Factor Selector */}
+            <div className="lg:col-span-5 space-y-2">
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                Select Factor to Test vs. {targetCol}:
+              </p>
+              <div className="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto pr-1">
+                {playgroundVars.map((v) => (
+                  <button
+                    key={v.id}
+                    onClick={() => setSelectedVar(v)}
+                    className={`
+                      p-3 rounded-xl text-left text-xs font-bold border transition-all cursor-pointer
+                      ${selectedVar.id === v.id 
+                        ? 'bg-blue-600 text-white border-blue-600 shadow-sm' 
+                        : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
+                      }
+                    `}
+                  >
+                    <p className="truncate">{v.name}</p>
+                    <p className={`text-[10px] mt-0.5 font-mono ${selectedVar.id === v.id ? 'text-blue-100' : 'text-slate-400'}`}>
+                      r = {v.r > 0 ? `+${v.r.toFixed(2)}` : v.r.toFixed(2)}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Interactive Calculator Output */}
+            <div className="lg:col-span-7 p-5 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-blue-700 uppercase tracking-wider truncate mr-2">
+                  Hypothesis Test: {selectedVar.name} × {targetCol}
+                </span>
+                <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold flex-shrink-0 ${
+                  selectedVar.p < 0.05 ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-700'
+                }`}>
+                  p = {selectedVar.p < 0.001 ? '< 0.001' : selectedVar.p.toFixed(3)} ({selectedVar.p < 0.05 ? 'Reject H₀' : 'Fail to Reject'})
+                </span>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2 text-center">
+                <div className="p-3 bg-white rounded-xl border border-slate-200">
+                  <p className="text-[10px] text-slate-400 font-bold uppercase">Pearson r</p>
+                  <p className="text-lg font-extrabold text-slate-900 mt-0.5">
+                    {selectedVar.r > 0 ? `+${selectedVar.r.toFixed(2)}` : selectedVar.r.toFixed(2)}
                   </p>
-                </button>
-              ))}
-            </div>
-          </div>
+                </div>
+                <div className="p-3 bg-white rounded-xl border border-slate-200">
+                  <p className="text-[10px] text-slate-400 font-bold uppercase">t-Statistic</p>
+                  <p className="text-lg font-extrabold text-blue-700 mt-0.5">
+                    t = {selectedVar.t}
+                  </p>
+                </div>
+                <div className="p-3 bg-white rounded-xl border border-slate-200">
+                  <p className="text-[10px] text-slate-400 font-bold uppercase">Variance R²</p>
+                  <p className="text-lg font-extrabold text-teal-700 mt-0.5">
+                    {(selectedVar.r2 * 100).toFixed(1)}%
+                  </p>
+                </div>
+              </div>
 
-          {/* Interactive Calculator Output */}
-          <div className="lg:col-span-7 p-5 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">
-                Hypothesis Test: {selectedVar.name} × Stress Score
-              </span>
-              <span className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-bold">
-                p &lt; 0.001 (Reject H₀)
-              </span>
-            </div>
-
-            <div className="grid grid-cols-3 gap-2 text-center">
-              <div className="p-3 bg-white rounded-xl border border-slate-200">
-                <p className="text-[10px] text-slate-400 font-bold uppercase">Pearson r</p>
-                <p className="text-lg font-extrabold text-slate-900 mt-0.5">
-                  {selectedVar.r > 0 ? `+${selectedVar.r.toFixed(2)}` : selectedVar.r.toFixed(2)}
+              <div className="p-3 rounded-xl bg-white border border-slate-200 text-xs text-slate-700 space-y-1">
+                <p className="font-semibold text-slate-900">
+                  Classification: <strong>{selectedVar.effect}</strong>
+                </p>
+                <p className="leading-relaxed">
+                  With a sample size of N = {analysisData?.rows?.length?.toLocaleString() || 0}, the association between <strong>{selectedVar.name}</strong> and <strong>{targetCol}</strong> {selectedVar.p < 0.05 ? 'is statistically significant and explains ' + (selectedVar.r2 * 100).toFixed(1) + '% of variance.' : 'does not reach statistical significance.'}
                 </p>
               </div>
-              <div className="p-3 bg-white rounded-xl border border-slate-200">
-                <p className="text-[10px] text-slate-400 font-bold uppercase">t-Statistic (N=3k)</p>
-                <p className="text-lg font-extrabold text-blue-700 mt-0.5">
-                  t = {selectedVar.t}
-                </p>
-              </div>
-              <div className="p-3 bg-white rounded-xl border border-slate-200">
-                <p className="text-[10px] text-slate-400 font-bold uppercase">Variance R²</p>
-                <p className="text-lg font-extrabold text-teal-700 mt-0.5">
-                  {(selectedVar.r2 * 100).toFixed(1)}%
-                </p>
-              </div>
-            </div>
-
-            <div className="p-3 rounded-xl bg-white border border-slate-200 text-xs text-slate-700 space-y-1">
-              <p className="font-semibold text-slate-900">
-                Classification: <strong>{selectedVar.effect}</strong>
-              </p>
-              <p className="leading-relaxed">
-                With a sample size of N = 3,000, the relationship between <strong>{selectedVar.name}</strong> and student stress is statistically robust beyond the 99.9% confidence interval.
-              </p>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }

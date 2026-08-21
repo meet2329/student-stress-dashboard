@@ -27,9 +27,14 @@ const CustomTooltip = ({ active, payload }) => {
   return null
 }
 
-export default function HighStressRadarPlot({ height = 300 }) {
+export default function HighStressRadarPlot({ 
+  data = null, 
+  cohortSize = '3,000',
+  targetName = 'Stress',
+  height = 300 
+}) {
   // Normalized 0-100 values for radar symmetry
-  const radarData = [
+  const defaultData = [
     { metric: 'Anxiety Level', highRisk: 86, overall: 62 },
     { metric: 'Screen Exposure', highRisk: 84, overall: 58 },
     { metric: 'Assignment Density', highRisk: 78, overall: 48 },
@@ -39,6 +44,8 @@ export default function HighStressRadarPlot({ height = 300 }) {
     { metric: 'Family Buffer', highRisk: 38, overall: 66 },
     { metric: 'Physical Activity', highRisk: 30, overall: 54 }
   ]
+
+  const radarData = data && data.length >= 3 ? data : defaultData
 
   return (
     <div style={{ width: '100%', height }}>

@@ -30,20 +30,12 @@ import { useFilter } from '../../context/FilterContext'
 import { useAuth } from '../../context/AuthContext'
 
 const NAV_ITEMS = [
-  { path: '/', label: 'Overview', icon: LayoutDashboard, exact: true, tag: 'Hero & KPIs' },
-  { path: '/profile', label: 'Student Profile', icon: Users, tag: 'Univariate' },
-  { path: '/academic-lifestyle', label: 'Academic & Lifestyle', icon: BookOpen, tag: 'Bivariate' },
-  { path: '/multivariate', label: 'Multivariate Analysis', icon: Layers, tag: 'Interactions' },
-  { path: '/statistical-analysis', label: 'Statistical Analysis', icon: Activity, tag: 'Hypotheses' },
-  { path: '/insights', label: 'Insights & Actions', icon: Sparkles, tag: 'Findings' },
-]
-
-const AI_EDA_ITEMS = [
-  { path: '/ai-eda', label: 'EDA Overview', icon: Cpu, exact: true, tag: 'Dashboard' },
+  { path: '/', label: 'EDA Overview', icon: Cpu, exact: true, tag: 'Dashboard' },
   { path: '/ai-eda/quality', label: 'Data Quality', icon: ShieldAlert, tag: 'Validation' },
   { path: '/ai-eda/univariate', label: 'Univariate', icon: BarChart3, tag: '1-Variable' },
   { path: '/ai-eda/bivariate', label: 'Bivariate', icon: GitBranch, tag: '2-Variable' },
   { path: '/ai-eda/multivariate', label: 'Multivariate', icon: BrainCircuit, tag: 'N-Variable' },
+  { path: '/ai-eda/statistical-analysis', label: 'Statistical Analysis', icon: Activity, tag: 'Hypotheses' },
   { path: '/ai-eda/insights', label: 'AI Insights', icon: Lightbulb, tag: 'Findings' },
   { path: '/ai-eda/recommendations', label: 'Recommendations', icon: Target, tag: 'Actions' },
 ]
@@ -93,61 +85,12 @@ export default function Sidebar() {
       <div className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
         <div className="px-2 pb-2">
           {!collapsed && (
-            <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-              Analytical Modules
+            <p className="text-[11px] font-bold uppercase tracking-wider text-teal-400">
+              Autonomous EDA Studio
             </p>
           )}
         </div>
         {NAV_ITEMS.map((item) => {
-          const Icon = item.icon
-          const isActive = item.exact 
-            ? location.pathname === item.path 
-            : location.pathname.startsWith(item.path)
-
-          return (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              onClick={() => setMobileOpen(false)}
-              className={({ isActive: routerActive }) => `
-                relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group
-                ${routerActive 
-                  ? 'bg-blue-600/15 text-blue-400 font-semibold border border-blue-500/30' 
-                  : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
-                }
-              `}
-            >
-              {isActive && (
-                <motion.div
-                  layoutId="activeNavIndicator"
-                  className="absolute left-0 top-2 bottom-2 w-1 bg-blue-500 rounded-r-full"
-                  transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-                />
-              )}
-              <Icon className={`w-5 h-5 flex-shrink-0 transition-colors ${isActive ? 'text-blue-400' : 'text-slate-400 group-hover:text-slate-200'}`} />
-              {!collapsed && (
-                <div className="flex items-center justify-between flex-1 min-w-0">
-                  <span className="truncate">{item.label}</span>
-                  <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-mono ${
-                    isActive ? 'bg-blue-500/20 text-blue-300' : 'bg-slate-800 text-slate-400 group-hover:bg-slate-700'
-                  }`}>
-                    {item.tag}
-                  </span>
-                </div>
-              )}
-            </NavLink>
-          )
-        })}
-
-        {/* AI Automated EDA Section */}
-        <div className="px-2 pt-4 pb-2 mt-2 border-t border-slate-800/60">
-          {!collapsed && (
-            <p className="text-[11px] font-bold uppercase tracking-wider text-teal-400">
-              AI Automated EDA
-            </p>
-          )}
-        </div>
-        {AI_EDA_ITEMS.map((item) => {
           const Icon = item.icon
           const isActive = item.exact 
             ? location.pathname === item.path 
@@ -168,7 +111,7 @@ export default function Sidebar() {
             >
               {isActive && (
                 <motion.div
-                  layoutId="activeNavIndicatorEda"
+                  layoutId="activeNavIndicator"
                   className="absolute left-0 top-2 bottom-2 w-1 bg-teal-500 rounded-r-full"
                   transition={{ type: 'spring', stiffness: 350, damping: 30 }}
                 />

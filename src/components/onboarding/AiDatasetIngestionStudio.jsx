@@ -18,6 +18,7 @@ import {
   X
 } from 'lucide-react'
 import { useFilter } from '../../context/FilterContext'
+import { useAIEda } from '../../context/AIEdaContext'
 
 export default function AiDatasetIngestionStudio({ isOpen, onClose }) {
   const { 
@@ -28,6 +29,8 @@ export default function AiDatasetIngestionStudio({ isOpen, onClose }) {
     nvidiaModel,
     isAnalyzingAi
   } = useFilter()
+
+  const { uploadDataset, resetWorkspace } = useAIEda()
 
   const [dragOver, setDragOver] = useState(false)
   const [selectedFile, setSelectedFile] = useState(null)
@@ -68,6 +71,7 @@ export default function AiDatasetIngestionStudio({ isOpen, onClose }) {
 
   const handleStartAiIngestion = async () => {
     if (!fileContent || !fileContent.raw) return
+    const name = selectedFile ? selectedFile.name : 'custom_dataset.csv'
     try {
       setErrorMessage('')
       setIngestionStep(1) // Step 1: Parsing
@@ -75,7 +79,9 @@ export default function AiDatasetIngestionStudio({ isOpen, onClose }) {
       setTimeout(async () => {
         setIngestionStep(2) // Step 2: NVIDIA AI reasoning
         try {
-          await loadCustomCsvText(fileContent.raw, selectedFile ? selectedFile.name : 'custom_dataset.csv', true)
+          // Sync with both FilterContext and AIEdaContext
+          await loadCustomCsvText(fileContent.raw, name, true)
+          await uploadDataset(fileContent.raw, name)
           setIngestionStep(3) // Step 3: Complete
           setTimeout(() => {
             onClose()
@@ -94,6 +100,7 @@ export default function AiDatasetIngestionStudio({ isOpen, onClose }) {
 
   const handleUseBenchmark = () => {
     clearCustomDataset()
+    resetWorkspace()
     onClose()
   }
 

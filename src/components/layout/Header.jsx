@@ -121,66 +121,8 @@ export default function Header() {
           </p>
         </div>
 
-        {/* Right: Global Filter Bar, NVIDIA AI, Dataset Ingestion & Auth Controls */}
+        {/* Right: Global AI Controls, Dataset Ingestion & Auth */}
         <div className="flex flex-wrap items-center gap-2 pt-1 lg:pt-0">
-          {/* Quick Filters (only for Student Stress pages) */}
-          {!location.pathname.startsWith('/ai-eda') && (
-            <div className="flex items-center gap-1.5 bg-slate-100/90 p-1 rounded-xl border border-slate-200/70 text-xs">
-            <span className="flex items-center gap-1 px-2 text-slate-500 font-medium">
-              <Filter className="w-3.5 h-3.5 text-slate-400" />
-              <span className="hidden sm:inline">Filter:</span>
-            </span>
-
-            {/* Gender Select */}
-            <select
-              value={selectedGender}
-              onChange={(e) => setSelectedGender(e.target.value)}
-              className="bg-white border border-slate-200 text-slate-700 rounded-lg px-2 py-1 text-xs font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none cursor-pointer"
-            >
-              <option value="All">All Genders</option>
-              <option value="Female">Female</option>
-              <option value="Male">Male</option>
-              <option value="Other">Non-Binary / Other</option>
-            </select>
-
-            {/* University Type Select */}
-            <select
-              value={selectedUniversity}
-              onChange={(e) => setSelectedUniversity(e.target.value)}
-              className="bg-white border border-slate-200 text-slate-700 rounded-lg px-2 py-1 text-xs font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none cursor-pointer"
-            >
-              <option value="All">All Universities</option>
-              <option value="Public">Public University</option>
-              <option value="Private">Private University</option>
-              <option value="Research">Research Institute</option>
-            </select>
-
-            {/* Stress Level Select */}
-            <select
-              value={selectedStressLevel}
-              onChange={(e) => setSelectedStressLevel(e.target.value)}
-              className="bg-white border border-slate-200 text-slate-700 rounded-lg px-2 py-1 text-xs font-medium focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none cursor-pointer"
-            >
-              <option value="All">All Stress Levels</option>
-              <option value="Low">Low</option>
-              <option value="Moderate">Moderate</option>
-              <option value="High">High</option>
-              <option value="Very High">Very High</option>
-            </select>
-
-            {/* Reset Button */}
-            {isFiltered && (
-              <button
-                onClick={resetFilters}
-                className="flex items-center gap-1 px-2 py-1 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors text-xs font-semibold"
-                title="Reset all filters"
-              >
-                <RotateCcw className="w-3 h-3" />
-                <span>Reset</span>
-              </button>
-            )}
-          </div>
-          )}
 
           {/* AI Dataset Ingestion Studio Button (Main Flow) */}
           <button

@@ -287,10 +287,13 @@ export default function CorrelationHeatmap({ dynamicData = null }) {
             </div>
 
             {/* Matrix Table */}
-            <div className="overflow-x-auto border border-slate-200 rounded-2xl bg-white p-3 shadow-xs">
-              <div className="min-w-[650px]">
+            <div className="overflow-x-auto border border-slate-200 rounded-2xl bg-white p-3 shadow-xs custom-scrollbar">
+              <div style={{ minWidth: Math.max(500, (variables.length + 1) * 55) }}>
                 {/* Header Row */}
-                <div className="grid grid-cols-13 gap-1 pb-2 border-b border-slate-100 text-[10px] font-extrabold text-slate-600">
+                <div 
+                  className="grid gap-1 pb-2 border-b border-slate-100 text-[10px] font-extrabold text-slate-600"
+                  style={{ gridTemplateColumns: `minmax(80px, 130px) repeat(${variables.length}, minmax(42px, 1fr))` }}
+                >
                   <div className="p-1 truncate text-slate-400">Metric</div>
                   {shortLabels.map((lbl, idx) => (
                     <div key={idx} className="p-1 text-center truncate font-bold text-slate-700" title={variables[idx]}>
@@ -301,7 +304,11 @@ export default function CorrelationHeatmap({ dynamicData = null }) {
 
                 {/* Rows */}
                 {matrix.map((row, rowIdx) => (
-                  <div key={rowIdx} className="grid grid-cols-13 gap-1 py-0.5 items-center">
+                  <div 
+                    key={rowIdx} 
+                    className="grid gap-1 py-0.5 items-center"
+                    style={{ gridTemplateColumns: `minmax(80px, 130px) repeat(${variables.length}, minmax(42px, 1fr))` }}
+                  >
                     <div 
                       className="text-[10px] font-bold text-slate-800 truncate pr-1" 
                       title={variables[rowIdx]}
@@ -328,9 +335,9 @@ export default function CorrelationHeatmap({ dynamicData = null }) {
                           ${getCellColor(val)}
                           ${selectedPair && selectedPair.var1 === variables[rowIdx] && selectedPair.var2 === variables[colIdx] ? 'ring-2 ring-blue-600 scale-105 z-10 shadow-sm' : 'hover:scale-105'}
                         `}
-                        title={`${variables[rowIdx]} × ${variables[colIdx]}: r = ${val}`}
+                        title={`${variables[rowIdx]} × ${variables[colIdx]}: r = ${typeof val === 'number' ? val.toFixed(3) : val}`}
                       >
-                        {val === 1.0 ? '1.0' : val > 0 ? `+${val.toFixed(2).replace('0.', '.')}` : val.toFixed(2).replace('-0.', '-.')}
+                        {val === 1.0 ? '1.0' : typeof val === 'number' ? (val > 0 ? `+${val.toFixed(2).replace('0.', '.')}` : val.toFixed(2).replace('-0.', '-.')) : '—'}
                       </button>
                     ))}
                   </div>

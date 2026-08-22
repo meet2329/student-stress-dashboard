@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import {
   ResponsiveContainer,
   BarChart,
@@ -10,60 +10,76 @@ import {
   Cell,
   ReferenceLine
 } from 'recharts'
-
-const CustomTooltip = ({ active, payload, xKey, yKey, unit = '' }) => {
-  if (active && payload && payload.length) {
-    const data = payload[0].payload
-    return (
-      <div className="p-3 bg-slate-900 text-white rounded-xl shadow-xl border border-slate-700 text-xs space-y-1">
-        <p className="font-bold text-blue-400">{data[xKey] || data.range || data.category || data.age || data.type}</p>
-        <p className="text-slate-300">
-          <span className="font-semibold">Student Count:</span> {data.count || data[yKey]} students
-        </p>
-        {data.percentage && (
-          <p className="text-slate-400 font-mono text-[11px]">
-            Cohort Proportion: {data.percentage}%
-          </p>
-        )}
-        {data.avgStress && (
-          <p className="text-amber-300 font-semibold text-[11px] pt-1 border-t border-slate-700">
-            Avg Stress: {data.avgStress} / 100
-          </p>
-        )}
-      </div>
-    )
-  }
-  return null
-}
+import {
+  CHART_PALETTE,
+  getOptimalLabelConfig,
+  SmartXAxisTick,
+  SmartChartTooltip,
+  formatMetricValue
+} from '../../utils/dynamicChartUtils'
 
 export default function UnivariateHistogram({
   data = [],
   xKey = 'range',
   yKey = 'count',
+  colName,
   meanVal,
   meanLabel = 'Mean',
   barColor = '#3B82F6',
   height = 260,
   showPercentage = false
 }) {
+  const config = useMemo(() => {
+    return getOptimalLabelConfig(data, xKey)
+  }, [data, xKey])
+
+  if (!data || data.length === 0) {
+    return <div className="h-40 flex items-center justify-center text-xs text-slate-400">No histogram data</div>
+  }
+
   return (
     <div style={{ width: '100%', height }}>
       <ResponsiveContainer>
-        <BarChart data={data} margin={{ top: 15, right: 10, bottom: 25, left: -10 }}>
+        <BarChart
+          data={data}
+          margin={{
+            top: 15,
+            right: 12,
+            bottom: Math.max(6, config.xAxisHeight - 20),
+            left: -10
+          }}
+        >
           <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
           <XAxis
             dataKey={xKey}
-            tick={{ fill: '#64748B', fontSize: 11 }}
+            height={config.xAxisHeight}
+            tick={
+              <SmartXAxisTick
+                angle={config.angle}
+                textAnchor={config.textAnchor}
+                fontSize={config.fontSize}
+                maxChars={16}
+              />
+            }
             tickLine={{ stroke: '#CBD5E1' }}
+            axisLine={{ stroke: '#CBD5E1' }}
             interval={0}
-            angle={-15}
-            textAnchor="end"
           />
           <YAxis
-            tick={{ fill: '#64748B', fontSize: 11 }}
-            tickLine={{ stroke: '#CBD5E1' }}
+            tick={{ fill: '#64748B', fontSize: 10 }}
+            tickLine={false}
+            axisLine={false}
+            tickFormatter={(v) => formatMetricValue(v)}
           />
-          <Tooltip content={<CustomTooltip xKey={xKey} yKey={yKey} />} />
+          <Tooltip
+            content={
+              <SmartChartTooltip
+                columnName={colName}
+                valueLabel="Records"
+                extraInfo={meanVal ? `Dataset Mean: ${meanVal}` : undefined}
+              />
+            }
+          />
 
           {meanVal && (
             <ReferenceLine
@@ -75,11 +91,11 @@ export default function UnivariateHistogram({
             />
           )}
 
-          <Bar dataKey={yKey} radius={[6, 6, 0, 0]}>
+          <Bar dataKey={yKey} radius={[6, 6, 0, 0]} maxBarSize={48}>
             {data.map((entry, index) => (
               <Cell 
                 key={`cell-${index}`} 
-                fill={entry.color || barColor}
+                fill={entry.color || barColor || CHART_PALETTE[index % CHART_PALETTE.length]}
                 opacity={0.9}
               />
             ))}

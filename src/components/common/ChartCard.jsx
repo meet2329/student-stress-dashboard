@@ -81,23 +81,26 @@ export default function ChartCard({
       {(columnsUsed || whyDone) && (
         <div className="px-5 py-2 bg-blue-50/50 border-b border-blue-100/60 text-xs flex flex-wrap items-center justify-between gap-2">
           {columnsUsed && (
-            <div className="flex items-center gap-1.5">
-              <span className="px-1.5 py-0.5 rounded bg-blue-100/80 text-blue-800 text-[10px] font-bold uppercase font-mono tracking-wide flex items-center gap-1">
+            <div className="flex items-center gap-1.5 min-w-0 max-w-full">
+              <span className="px-1.5 py-0.5 rounded bg-blue-100/80 text-blue-800 text-[10px] font-bold uppercase font-mono tracking-wide shrink-0 flex items-center gap-1">
                 <Database className="w-3 h-3 text-blue-600" />
                 Column:
               </span>
-              <span className="font-mono font-bold text-slate-800 text-xs">
+              <span
+                className="font-mono font-bold text-slate-800 text-xs truncate max-w-md"
+                title={columnsUsed}
+              >
                 {columnsUsed}
               </span>
             </div>
           )}
           {whyDone && (
-            <div className="flex items-center gap-1.5 text-slate-600">
-              <span className="px-1.5 py-0.5 rounded bg-emerald-100/80 text-emerald-800 text-[10px] font-bold uppercase tracking-wide flex-shrink-0 flex items-center gap-1">
+            <div className="flex items-center gap-1.5 text-slate-600 min-w-0 flex-1 justify-end">
+              <span className="px-1.5 py-0.5 rounded bg-emerald-100/80 text-emerald-800 text-[10px] font-bold uppercase tracking-wide shrink-0 flex items-center gap-1">
                 <Sparkles className="w-3 h-3 text-emerald-600" />
                 Purpose:
               </span>
-              <span className="text-[11px] font-medium text-slate-700">
+              <span className="text-[11px] font-medium text-slate-700 truncate" title={whyDone}>
                 {whyDone}
               </span>
             </div>

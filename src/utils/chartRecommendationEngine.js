@@ -27,7 +27,10 @@ export function selectUnivariateCharts(profile) {
 
     if (col.inferredType === 'categorical' || col.inferredType === 'boolean') {
       const catCount = col.uniqueCount || 0
-      if (catCount <= 8) {
+      const maxCatLen = Math.max(...(col.topCategories || []).map(c => String(c.value).length), 0)
+
+      // Only recommend Donut if 2 to 6 unique values and labels are reasonably sized
+      if (catCount >= 2 && catCount <= 6 && maxCatLen <= 22) {
         charts.push({
           chartType: 'donut',
           column: col.name,
@@ -40,10 +43,10 @@ export function selectUnivariateCharts(profile) {
         charts.push({
           chartType: 'bar',
           column: col.name,
-          title: `Top ${col.name} Categories`,
-          reason: `Highlights most frequent category values.`,
+          title: `Distribution: ${col.name}`,
+          reason: `Highlights frequency distribution across ${col.name} categories.`,
           dataType: 'categorical',
-          categories: (col.topCategories || []).slice(0, 10)
+          categories: (col.topCategories || []).slice(0, 15)
         })
       }
     }
@@ -354,7 +357,7 @@ export function computeCategoryData(rows, colName) {
 
   return Object.entries(freq)
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 10)
+    .slice(0, 15)
     .map(([category, count]) => ({
       category,
       count,

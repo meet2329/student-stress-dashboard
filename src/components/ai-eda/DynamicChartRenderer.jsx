@@ -9,51 +9,80 @@ import ChartCard from '../common/ChartCard'
 import GenericBarChart from '../charts/GenericBarChart'
 import GroupedBarChart from '../charts/GroupedBarChart'
 import BoxPlotChart from '../charts/BoxPlotChart'
+import UnivariateDonut from '../charts/UnivariateDonut'
 import { useAIEda } from '../../context/AIEdaContext'
-import { mean, stdDev, pearsonCorrelation } from '../../utils/csvAnalyticsEngine'
+import { mean } from '../../utils/csvAnalyticsEngine'
 import {
   computeHistogramData,
   computeCategoryData,
   computeScatterData
 } from '../../utils/chartRecommendationEngine'
 import {
+  CHART_PALETTE,
+  SmartChartTooltip,
+  formatMetricValue
+} from '../../utils/dynamicChartUtils'
+import {
   ResponsiveContainer,
-  BarChart, Bar,
   ScatterChart, Scatter,
   XAxis, YAxis,
-  Tooltip, CartesianGrid, Cell,
-  PieChart, Pie
+  Tooltip, CartesianGrid, Cell
 } from 'recharts'
 
-const COLORS = ['#3B82F6', '#0D9488', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#10B981', '#6366F1', '#14B8A6', '#F97316']
-
-// ─── Scatter Chart Wrapper ─────────────────────────────────────────────────────
+// ─── Scatter Chart Wrapper with Dynamic Ticks & Tooltip ─────────────────────────
 
 function ScatterChartWrapper({ data, xKey = 'x', yKey = 'y', xLabel, yLabel }) {
+  if (!data || data.length === 0) {
+    return <div className="h-40 flex items-center justify-center text-xs text-slate-400">No scatter points</div>
+  }
+
   return (
     <ResponsiveContainer width="100%" height={280}>
-      <ScatterChart margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
-        <XAxis dataKey={xKey} name={xLabel} tick={{ fontSize: 11, fill: '#64748B' }} />
-        <YAxis dataKey={yKey} name={yLabel} tick={{ fontSize: 11, fill: '#64748B' }} />
-        <Tooltip
-          content={({ active, payload }) => {
-            if (active && payload?.length) {
-              const d = payload[0].payload
-              return (
-                <div className="p-3 bg-slate-900 text-white rounded-xl shadow-xl border border-slate-700 text-xs space-y-1">
-                  <p className="text-slate-300"><span className="font-semibold text-blue-300">{xLabel}:</span> {d[xKey]}</p>
-                  <p className="text-slate-300"><span className="font-semibold text-teal-300">{yLabel}:</span> {d[yKey]}</p>
-                  {d.count && <p className="text-slate-400 font-mono">N = {d.count}</p>}
-                </div>
-              )
-            }
-            return null
+      <ScatterChart margin={{ top: 12, right: 24, bottom: 20, left: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+        <XAxis
+          dataKey={xKey}
+          name={xLabel}
+          tick={{ fontSize: 10, fill: '#64748B' }}
+          axisLine={{ stroke: '#CBD5E1' }}
+          tickLine={{ stroke: '#CBD5E1' }}
+          tickFormatter={(v) => formatMetricValue(v)}
+          label={{
+            value: xLabel.length > 28 ? xLabel.slice(0, 26) + '…' : xLabel,
+            position: 'insideBottom',
+            offset: -12,
+            fill: '#64748B',
+            fontSize: 10,
+            fontWeight: 600
           }}
+        />
+        <YAxis
+          dataKey={yKey}
+          name={yLabel}
+          tick={{ fontSize: 10, fill: '#64748B' }}
+          axisLine={{ stroke: '#CBD5E1' }}
+          tickLine={{ stroke: '#CBD5E1' }}
+          tickFormatter={(v) => formatMetricValue(v)}
+          label={{
+            value: yLabel.length > 24 ? yLabel.slice(0, 22) + '…' : yLabel,
+            angle: -90,
+            position: 'insideLeft',
+            fill: '#64748B',
+            fontSize: 10,
+            fontWeight: 600
+          }}
+        />
+        <Tooltip
+          content={
+            <SmartChartTooltip
+              columnName={`${xLabel} vs. ${yLabel}`}
+              valueLabel="Coordinates"
+            />
+          }
         />
         <Scatter data={data} fill="#3B82F6">
           {data.map((_, idx) => (
-            <Cell key={idx} fill={COLORS[idx % COLORS.length]} />
+            <Cell key={idx} fill={CHART_PALETTE[idx % CHART_PALETTE.length]} fillOpacity={0.8} />
           ))}
         </Scatter>
       </ScatterChart>
@@ -61,51 +90,10 @@ function ScatterChartWrapper({ data, xKey = 'x', yKey = 'y', xLabel, yLabel }) {
   )
 }
 
-// ─── Donut Chart Wrapper ───────────────────────────────────────────────────────
-
-function DonutChartWrapper({ data }) {
-  return (
-    <ResponsiveContainer width="100%" height={260}>
-      <PieChart>
-        <Pie
-          data={data}
-          cx="50%"
-          cy="50%"
-          innerRadius={55}
-          outerRadius={95}
-          paddingAngle={3}
-          dataKey="count"
-          nameKey="category"
-          label={({ category, percentage }) => `${category} (${percentage}%)`}
-          labelLine={false}
-        >
-          {data.map((_, idx) => (
-            <Cell key={idx} fill={COLORS[idx % COLORS.length]} />
-          ))}
-        </Pie>
-        <Tooltip
-          content={({ active, payload }) => {
-            if (active && payload?.length) {
-              const d = payload[0].payload
-              return (
-                <div className="p-3 bg-slate-900 text-white rounded-xl shadow-xl border border-slate-700 text-xs">
-                  <p className="font-bold text-blue-300">{d.category}</p>
-                  <p className="text-slate-200">Count: {d.count} ({d.percentage}%)</p>
-                </div>
-              )
-            }
-            return null
-          }}
-        />
-      </PieChart>
-    </ResponsiveContainer>
-  )
-}
-
-// ─── Heatmap Wrapper ───────────────────────────────────────────────────────────
+// ─── Heatmap Wrapper with Responsive Tooltips & Long Name Support ───────────────
 
 function HeatmapWrapper({ variables, matrix }) {
-  if (!variables || !matrix) return null
+  if (!variables || !matrix || variables.length === 0) return null
 
   const getColor = (val) => {
     if (val >= 0.7) return '#065F46'
@@ -119,32 +107,44 @@ function HeatmapWrapper({ variables, matrix }) {
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="text-[10px]">
+    <div className="overflow-x-auto custom-scrollbar p-1 max-w-full">
+      <table className="text-[10px] w-full border-collapse">
         <thead>
           <tr>
-            <th className="p-1.5 text-left font-bold text-slate-500"></th>
+            <th className="p-1.5 text-left font-bold text-slate-500 bg-slate-50 sticky left-0 z-10">Variable</th>
             {variables.map(v => (
-              <th key={v} className="p-1.5 text-center font-bold text-slate-600 max-w-[60px] truncate" title={v}>
-                {v.length > 8 ? v.slice(0, 7) + '…' : v}
+              <th
+                key={v}
+                title={v}
+                className="p-1.5 text-center font-bold text-slate-600 max-w-[80px] truncate"
+              >
+                {v.length > 12 ? v.slice(0, 11) + '…' : v}
               </th>
             ))}
           </tr>
         </thead>
         <tbody>
           {matrix.map((row, i) => (
-            <tr key={i}>
-              <td className="p-1.5 font-bold text-slate-600 whitespace-nowrap max-w-[80px] truncate" title={row.variable}>
-                {row.variable.length > 10 ? row.variable.slice(0, 9) + '…' : row.variable}
+            <tr key={i} className="hover:bg-slate-50 transition-colors">
+              <td
+                title={row.variable}
+                className="p-1.5 font-bold text-slate-700 whitespace-nowrap max-w-[120px] truncate bg-white sticky left-0 z-10 border-r border-slate-200"
+              >
+                {row.variable.length > 14 ? row.variable.slice(0, 13) + '…' : row.variable}
               </td>
               {variables.map(v => {
                 const val = row[v]
+                const isHigh = Math.abs(val) > 0.4
                 return (
                   <td
                     key={v}
-                    className="p-1 text-center font-mono font-bold"
-                    style={{ backgroundColor: getColor(val), color: Math.abs(val) > 0.4 ? '#fff' : '#334155', minWidth: 42 }}
-                    title={`${row.variable} × ${v}: ${typeof val === 'number' ? val.toFixed(3) : val}`}
+                    className="p-1.5 text-center font-mono font-bold transition-all rounded-xs border border-white"
+                    style={{
+                      backgroundColor: getColor(val),
+                      color: isHigh ? '#ffffff' : '#1e293b',
+                      minWidth: 46
+                    }}
+                    title={`${row.variable} × ${v}\nPearson Correlation (r): ${typeof val === 'number' ? val.toFixed(3) : val}`}
                   >
                     {typeof val === 'number' ? val.toFixed(2) : '—'}
                   </td>
@@ -173,18 +173,35 @@ export default function DynamicChartRenderer({ chartSpec }) {
     switch (chartType) {
       case 'histogram': {
         const data = computeHistogramData(rows, chartSpec.column)
-        return <GenericBarChart data={data} xKey="range" yKey="count" />
+        return <GenericBarChart data={data} xKey="range" yKey="count" colName={chartSpec.column} />
       }
 
       case 'bar': {
         const data = computeCategoryData(rows, chartSpec.column)
-        return <GenericBarChart data={data} xKey="category" yKey="count" />
+        return <GenericBarChart data={data} xKey="category" yKey="count" colName={chartSpec.column} />
       }
 
       case 'donut':
       case 'pie': {
         const data = computeCategoryData(rows, chartSpec.column)
-        return <DonutChartWrapper data={data} />
+        // Guard: If there are >6 categories or very long strings, adapt to horizontal bar chart to prevent cramped pie
+        if (data.length > 6) {
+          return (
+            <div className="space-y-2">
+              <div className="text-[10px] text-amber-700 font-semibold bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg inline-block">
+                ⚡ Auto-adapted to Horizontal Bar for high readability ({data.length} categories)
+              </div>
+              <GenericBarChart
+                data={data}
+                xKey="category"
+                yKey="count"
+                colName={chartSpec.column}
+                forcedOrientation="horizontal"
+              />
+            </div>
+          )
+        }
+        return <UnivariateDonut data={data} colName={chartSpec.column} />
       }
 
       case 'scatter': {
@@ -211,10 +228,22 @@ export default function DynamicChartRenderer({ chartSpec }) {
           const groupMeans = Object.entries(groups)
             .map(([group, vals]) => ({ group, mean: parseFloat(mean(vals).toFixed(2)), count: vals.length }))
             .sort((a, b) => b.mean - a.mean)
-            .slice(0, 10)
-          return <GroupedBarChart data={groupMeans} />
+            .slice(0, 12)
+          return (
+            <GroupedBarChart
+              data={groupMeans}
+              groupCol={chartSpec.x}
+              metricCol={chartSpec.y}
+            />
+          )
         }
-        return <GroupedBarChart data={data} />
+        return (
+          <GroupedBarChart
+            data={data}
+            groupCol={chartSpec.x || chartSpec.columns?.[0]}
+            metricCol={chartSpec.y || chartSpec.columns?.[1]}
+          />
+        )
       }
 
       case 'boxplot': {
@@ -239,7 +268,6 @@ export default function DynamicChartRenderer({ chartSpec }) {
       }
 
       case 'bubble': {
-        // Render as scatter with size encoding
         const xCol = chartSpec.x || chartSpec.columns?.[0]
         const yCol = chartSpec.y || chartSpec.columns?.[1]
         if (!xCol || !yCol) return null

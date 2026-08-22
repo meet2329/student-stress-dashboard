@@ -1,85 +1,72 @@
 import React from 'react'
-import { ResponsiveContainer, ComposedChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Line, Scatter } from 'recharts'
+import { formatMetricValue } from '../../utils/dynamicChartUtils'
 
 /**
- * BoxPlotChart — Renders a simplified box plot using Recharts ComposedChart.
- * Displays min, Q1, median, Q3, max for a numerical column grouped by category.
+ * BoxPlotChart — Renders an intuitive 5-number distribution summary
+ * Displays Min, Q1, Median, Mean, Q3, Max, and IQR for a numerical column.
  */
-
-const CustomTooltip = ({ active, payload }) => {
-  if (active && payload && payload.length) {
-    const d = payload[0]?.payload
-    if (!d) return null
-    return (
-      <div className="p-3 bg-slate-900 text-white rounded-xl shadow-xl border border-slate-700 text-xs space-y-1">
-        <p className="font-bold text-blue-300">{d.category || d.name}</p>
-        {d.min !== undefined && <p className="text-slate-300">Min: {d.min}</p>}
-        {d.q1 !== undefined && <p className="text-slate-300">Q1: {d.q1}</p>}
-        {d.median !== undefined && <p className="text-teal-300 font-bold">Median: {d.median}</p>}
-        {d.q3 !== undefined && <p className="text-slate-300">Q3: {d.q3}</p>}
-        {d.max !== undefined && <p className="text-slate-300">Max: {d.max}</p>}
-        {d.count !== undefined && <p className="text-slate-400 font-mono">N = {d.count}</p>}
-      </div>
-    )
-  }
-  return null
-}
 
 export default function BoxPlotChart({ data = [], height = 260 }) {
   if (!data || data.length === 0) {
-    return <div className="h-40 flex items-center justify-center text-xs text-slate-400">No data available</div>
+    return <div className="h-40 flex items-center justify-center text-xs text-slate-400">No distribution data available</div>
   }
 
-  // Transform data for a simple box representation:
-  // Use stacked bars: bottom (min→Q1), box (Q1→Q3), with median line
   const chartData = data.map(d => ({
     ...d,
-    name: d.category || d.name,
-    base: d.q1,             // Bottom of box
-    boxHeight: d.q3 - d.q1, // Box IQR height
-    medianVal: d.median,
-    rangeBottom: d.min,
-    rangeTop: d.max
+    name: d.category || d.name || 'Feature Distribution',
+    min: d.min ?? 0,
+    q1: d.q1 ?? 0,
+    median: d.median ?? 0,
+    q3: d.q3 ?? 0,
+    max: d.max ?? 0,
+    count: d.count ?? 0
   }))
 
   return (
-    <div className="space-y-3">
-      {/* Simplified table-based box plot display */}
-      <div className="space-y-2">
+    <div className="space-y-3 w-full">
+      <div className="space-y-2.5 max-h-[360px] overflow-y-auto pr-1 custom-scrollbar">
         {chartData.map((item, idx) => {
-          const range = item.max - item.min || 1
-          const q1Pct = ((item.q1 - item.min) / range) * 100
-          const iqrPct = ((item.q3 - item.q1) / range) * 100
-          const medianPct = ((item.median - item.min) / range) * 100
+          const range = (item.max - item.min) || 1
+          const q1Pct = Math.max(0, Math.min(100, ((item.q1 - item.min) / range) * 100))
+          const iqrPct = Math.max(2, Math.min(100 - q1Pct, ((item.q3 - item.q1) / range) * 100))
+          const medianPct = Math.max(0, Math.min(100, ((item.median - item.min) / range) * 100))
 
           return (
-            <div key={idx} className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-slate-800">{item.name}</span>
-                <span className="font-mono text-slate-500 text-[11px]">N = {item.count}</span>
+            <div key={idx} className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-2.5 hover:bg-slate-100/60 transition-colors">
+              <div className="flex items-center justify-between text-xs gap-2">
+                <span className="font-bold text-slate-800 truncate max-w-[260px]" title={item.name}>
+                  {item.name}
+                </span>
+                <span className="font-mono text-slate-500 text-[11px] shrink-0">
+                  N = {formatMetricValue(item.count)}
+                </span>
               </div>
 
-              {/* Visual bar */}
-              <div className="relative h-5 bg-slate-200 rounded-full overflow-hidden">
-                {/* IQR Box */}
+              {/* Visual Box-Whisker Bar */}
+              <div className="relative h-6 bg-slate-200/80 rounded-full overflow-hidden border border-slate-300/80">
+                {/* IQR Box (Q1 to Q3) */}
                 <div
-                  className="absolute h-full bg-blue-400/60 border-x-2 border-blue-600"
+                  className="absolute h-full bg-gradient-to-r from-blue-500/50 to-indigo-500/50 border-x-2 border-indigo-600 shadow-inner"
                   style={{ left: `${q1Pct}%`, width: `${iqrPct}%` }}
+                  title={`Interquartile Range (IQR): ${formatMetricValue(item.q1)} to ${formatMetricValue(item.q3)}`}
                 />
-                {/* Median Line */}
+                {/* Median Indicator */}
                 <div
-                  className="absolute h-full w-0.5 bg-slate-900"
+                  className="absolute h-full w-1 bg-slate-900 shadow-md"
                   style={{ left: `${medianPct}%` }}
+                  title={`Median: ${formatMetricValue(item.median)}`}
                 />
               </div>
 
-              {/* Labels */}
-              <div className="flex justify-between text-[10px] font-mono text-slate-500">
-                <span>Min: {item.min}</span>
-                <span>Q1: {item.q1}</span>
-                <span className="font-bold text-slate-700">Md: {item.median}</span>
-                <span>Q3: {item.q3}</span>
-                <span>Max: {item.max}</span>
+              {/* 5-Number Summary Ticks */}
+              <div className="flex flex-wrap items-center justify-between text-[10px] font-mono text-slate-600 gap-1 pt-0.5">
+                <span>Min: <strong className="text-slate-800">{formatMetricValue(item.min)}</strong></span>
+                <span>Q1: <strong className="text-blue-700">{formatMetricValue(item.q1)}</strong></span>
+                <span className="font-bold text-indigo-900 bg-white px-1.5 py-0.5 rounded border border-indigo-200 shadow-2xs">
+                  Median: {formatMetricValue(item.median)}
+                </span>
+                <span>Q3: <strong className="text-purple-700">{formatMetricValue(item.q3)}</strong></span>
+                <span>Max: <strong className="text-slate-800">{formatMetricValue(item.max)}</strong></span>
               </div>
             </div>
           )

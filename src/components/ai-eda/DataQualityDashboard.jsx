@@ -370,10 +370,15 @@ export function ColumnHealthExplorer({ columnProfiles = [], outlierDetails = {},
                   onClick={() => onInspectColumn(col)}
                   className="hover:bg-blue-50/40 transition-colors cursor-pointer group"
                 >
-                  <td className="px-4 py-3 font-mono font-bold text-slate-900 group-hover:text-blue-600">
-                    {col.name}
-                    {col.isIdLike && <span className="ml-1.5 px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 text-[9px] font-sans">ID</span>}
-                    {col.isConstant && <span className="ml-1.5 px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[9px] font-sans">Constant</span>}
+                  <td
+                    className="px-4 py-3 font-mono font-bold text-slate-900 group-hover:text-blue-600 max-w-[240px]"
+                    title={col.name}
+                  >
+                    <div className="truncate flex items-center">
+                      <span className="truncate">{col.name}</span>
+                      {col.isIdLike && <span className="ml-1.5 px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 text-[9px] font-sans shrink-0">ID</span>}
+                      {col.isConstant && <span className="ml-1.5 px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[9px] font-sans shrink-0">Constant</span>}
+                    </div>
                   </td>
                   <td className="px-4 py-3">
                     <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold border ${typeColors[col.inferredType] || typeColors.empty}`}>

@@ -18,7 +18,7 @@ export default function ChartCard({
   const [showInfo, setShowInfo] = useState(false)
 
   const cardContent = (
-    <div className={`flex flex-col h-full bg-white rounded-2xl border border-slate-200/90 shadow-xs transition-all overflow-hidden ${className}`}>
+    <div className={`flex flex-col h-full bg-white/95 backdrop-blur-xs rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-slate-300/90 transition-all duration-300 overflow-hidden ${className}`}>
       {/* Card Top Header */}
       <div className="px-5 py-3.5 border-b border-slate-100 flex items-start justify-between gap-3 bg-slate-50/50">
         <div className="space-y-0.5 min-w-0">

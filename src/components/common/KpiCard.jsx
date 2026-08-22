@@ -1,5 +1,6 @@
 import React from 'react'
 import { motion } from 'framer-motion'
+import CardTilt3D from '../3d/CardTilt3D'
 
 export default function KpiCard({
   title,
@@ -32,44 +33,48 @@ export default function KpiCard({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay, ease: [0.16, 1, 0.3, 1] }}
-      className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-sm hover:shadow-md hover:border-slate-300 transition-all group relative overflow-hidden"
+      className="h-full"
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="space-y-1">
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-            {title}
-          </p>
-          <div className="flex items-baseline gap-1.5 pt-0.5">
-            <span className="text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight tabular-nums">
-              {value}
-            </span>
-            {unit && (
-              <span className="text-xs font-bold text-slate-500">
-                {unit}
+      <CardTilt3D maxTilt={5} scaleOnHover={1.02} className="h-full">
+        <div className="p-5 rounded-2xl bg-white/95 backdrop-blur-xs border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-slate-300 transition-all group relative overflow-hidden h-full flex flex-col justify-between">
+          <div className="flex items-start justify-between gap-3">
+            <div className="space-y-1">
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                {title}
+              </p>
+              <div className="flex items-baseline gap-1.5 pt-0.5">
+                <span className="text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight tabular-nums">
+                  {value}
+                </span>
+                {unit && (
+                  <span className="text-xs font-bold text-slate-500">
+                    {unit}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {Icon && (
+              <div className={`p-2.5 rounded-xl border bg-gradient-to-br ${statusColorMap[statusColor] || statusColorMap.blue} flex-shrink-0 group-hover:scale-105 transition-transform`}>
+                <Icon className="w-5 h-5" />
+              </div>
+            )}
+          </div>
+
+          <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between gap-2 text-xs">
+            {subtitle && (
+              <p className="text-slate-500 font-medium truncate">
+                {subtitle}
+              </p>
+            )}
+            {delta && (
+              <span className={`px-2 py-0.5 rounded-md border text-[11px] font-semibold flex-shrink-0 ${badgeColorMap[deltaType] || badgeColorMap.neutral}`}>
+                {delta}
               </span>
             )}
           </div>
         </div>
-
-        {Icon && (
-          <div className={`p-2.5 rounded-xl border bg-gradient-to-br ${statusColorMap[statusColor] || statusColorMap.blue} flex-shrink-0 group-hover:scale-105 transition-transform`}>
-            <Icon className="w-5 h-5" />
-          </div>
-        )}
-      </div>
-
-      <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between gap-2 text-xs">
-        {subtitle && (
-          <p className="text-slate-500 font-medium truncate">
-            {subtitle}
-          </p>
-        )}
-        {delta && (
-          <span className={`px-2 py-0.5 rounded-md border text-[11px] font-semibold flex-shrink-0 ${badgeColorMap[deltaType] || badgeColorMap.neutral}`}>
-            {delta}
-          </span>
-        )}
-      </div>
+      </CardTilt3D>
     </motion.div>
   )
 }

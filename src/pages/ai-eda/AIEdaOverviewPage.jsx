@@ -22,6 +22,7 @@ import PipelineProgress from '../../components/ai-eda/PipelineProgress'
 import DynamicKpiGrid from '../../components/ai-eda/DynamicKpiGrid'
 import DynamicChartRenderer from '../../components/ai-eda/DynamicChartRenderer'
 import SectionHeader from '../../components/common/SectionHeader'
+import CardTilt3D from '../../components/3d/CardTilt3D'
 import { Link } from 'react-router-dom'
 
 export default function AIEdaOverviewPage() {
@@ -192,35 +193,36 @@ export default function AIEdaOverviewPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {topInsights.map((ins, idx) => (
-              <div
-                key={idx}
-                className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between space-y-3"
-              >
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-200">
-                      {ins.category || 'Correlation'}
-                    </span>
-                    <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${
-                      ins.severity === 'High' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'
-                    }`}>
-                      {ins.confidence || 'High'} Confidence
-                    </span>
+              <CardTilt3D key={idx} maxTilt={5} scaleOnHover={1.02} className="h-full">
+                <div
+                  className="p-5 rounded-2xl bg-white/95 backdrop-blur-xs border border-slate-200/90 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between space-y-3 h-full"
+                >
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-200">
+                        {ins.category || 'Correlation'}
+                      </span>
+                      <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${
+                        ins.severity === 'High' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'
+                      }`}>
+                        {ins.confidence || 'High'} Confidence
+                      </span>
+                    </div>
+                    <h4 className="text-xs font-bold text-slate-900 leading-snug">
+                      {ins.title || ins.observation}
+                    </h4>
+                    <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed">
+                      {ins.interpretation || ins.observation}
+                    </p>
                   </div>
-                  <h4 className="text-xs font-bold text-slate-900 leading-snug">
-                    {ins.title || ins.observation}
-                  </h4>
-                  <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed">
-                    {ins.interpretation || ins.observation}
-                  </p>
-                </div>
 
-                {ins.evidence && (
-                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/60 font-mono text-[11px] text-slate-700 truncate">
-                    {ins.evidence}
-                  </div>
-                )}
-              </div>
+                  {ins.evidence && (
+                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/60 font-mono text-[11px] text-slate-700 truncate" title={ins.evidence}>
+                      {ins.evidence}
+                    </div>
+                  )}
+                </div>
+              </CardTilt3D>
             ))}
           </div>
         </div>
